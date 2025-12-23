@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:stemxplore/gradient_background.dart';
 
-class Steminfopage extends StatefulWidget {
-  const Steminfopage({super.key});
+class Faqpage extends StatefulWidget {
+  const Faqpage({super.key});
 
   @override
-  State<Steminfopage> createState() => _SteminfopageState();
+  State<Faqpage> createState() => _FaqpageState();
 }
 
-class _SteminfopageState extends State<Steminfopage> {
+class _FaqpageState extends State<Faqpage> {
   @override
   Widget build(BuildContext context) {
     return GradientBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
-          title: Text('STEM Info'),
+          title: Text('FAQ STEM'),
           titleTextStyle: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 24,
@@ -25,7 +25,7 @@ class _SteminfopageState extends State<Steminfopage> {
         ),
         body: Center(
           child: Text(
-            'Information about STEM will be displayed here.',
+            'FAQ content will be displayed here.',
             style: TextStyle(fontSize: 18),
             textAlign: TextAlign.center,
           ),

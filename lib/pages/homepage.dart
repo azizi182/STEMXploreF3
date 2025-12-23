@@ -1,8 +1,30 @@
 import 'package:flutter/material.dart';
+// import feature pages
+import 'package:stemxplore/career/careerpage.dart';
+import 'package:stemxplore/dailychallenge/dailychallengepage.dart';
+import 'package:stemxplore/faq/faqpage.dart';
+import 'package:stemxplore/learningmaterial/learningmaterialpage.dart';
+import 'package:stemxplore/quizgame/quizgamepage.dart';
+import 'package:stemxplore/steminfo/steminfopage.dart';
+// carousel slider import
+import 'package:carousel_slider/carousel_slider.dart';
 
-class Homepage extends StatelessWidget {
+class Homepage extends StatefulWidget {
   const Homepage({super.key});
 
+  @override
+  State<Homepage> createState() => _HomepageState();
+}
+
+class _HomepageState extends State<Homepage> {
+  // highlight
+  late List highlightTitles = [
+    'STEM in Daily Life',
+    'Fun Science Facts',
+    'Future STEM Careers',
+  ];
+
+  int currentHighlightIndex = 0;
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -11,7 +33,6 @@ class Homepage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(height: 20),
-
           // caroutsell input
           Text(
             'STEM Highlights',
@@ -20,18 +41,21 @@ class Homepage extends StatelessWidget {
 
           SizedBox(height: 12),
 
-          SizedBox(
-            height: 100,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: [
-                highlightCard('STEM in Daily Life'),
-                highlightCard('Fun Science Facts'),
-                highlightCard('Future STEM Careers'),
-              ],
+          CarouselSlider(
+            items: highlightTitles.map((title) {
+              return highlightCard(title);
+            }).toList(),
+            options: CarouselOptions(
+              height: 150,
+              enlargeCenterPage: true,
+              autoPlay: true,
+              onPageChanged: (index, reason) {
+                setState(() {
+                  currentHighlightIndex = index;
+                });
+              },
             ),
           ),
-          SizedBox(height: 30),
 
           Text(
             'Explore Features',
@@ -46,24 +70,33 @@ class Homepage extends StatelessWidget {
               FeatureCard(
                 imagePath: 'assets/images/infostem.png',
                 title: 'STEM Info',
+                destinationPage: const Steminfopage(),
               ),
               FeatureCard(
                 imagePath: 'assets/images/learningmaterial.png',
                 title: ' Learning Material',
+                destinationPage: const Learningmaterialpage(),
               ),
               FeatureCard(
                 imagePath: 'assets/images/gameicon.png',
                 title: 'Quiz Games',
+                destinationPage: const Quizgamepage(),
               ),
               FeatureCard(
                 imagePath: 'assets/images/career.png',
                 title: 'STEM Careers',
+                destinationPage: const Careerpage(),
               ),
               FeatureCard(
                 imagePath: 'assets/images/dailychallengeicon.png',
                 title: 'Daily Challenge',
+                destinationPage: const Dailychallengepage(),
               ),
-              FeatureCard(imagePath: 'assets/images/faqicon.png', title: 'FAQ'),
+              FeatureCard(
+                imagePath: 'assets/images/faqicon.png',
+                title: 'FAQ',
+                destinationPage: const Faqpage(),
+              ),
             ],
           ),
         ],
@@ -72,18 +105,15 @@ class Homepage extends StatelessWidget {
   }
 
   Widget highlightCard(String title) {
-    return Container(
-      width: 220,
-      margin: const EdgeInsets.only(right: 12),
+    return SizedBox(
+      width: 300,
+      height: 50,
       child: Card(
         child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Text(
-              title,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
+          child: Text(
+            title,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
         ),
       ),
@@ -94,14 +124,28 @@ class Homepage extends StatelessWidget {
 class FeatureCard extends StatelessWidget {
   final String imagePath;
   final String title;
+  final Widget destinationPage;
 
-  const FeatureCard({super.key, required this.imagePath, required this.title});
+  const FeatureCard({
+    super.key,
+    required this.imagePath,
+    required this.title,
+    required this.destinationPage,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Card(
       child: InkWell(
-        onTap: () {},
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => destinationPage),
+          );
+        },
+
+        borderRadius: BorderRadius.circular(12),
+
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
