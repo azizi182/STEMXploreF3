@@ -4,6 +4,15 @@ import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:stemxplore/pages/bookmarkpage.dart';
 import 'package:stemxplore/pages/homepage.dart';
 import 'package:stemxplore/pages/settingpage.dart';
+import 'package:stemxplore/stemhighlight/stem_highlight.dart';
+//fucntion page imports
+import 'package:stemxplore/steminfo/steminfopage.dart';
+import 'package:stemxplore/career/careerpage.dart';
+import 'package:stemxplore/dailychallenge/dailychallengepage.dart';
+import 'package:stemxplore/faq/faqpage.dart';
+import 'package:stemxplore/learningmaterial/learningmaterialpage.dart';
+import 'package:stemxplore/quizgame/quizgamepage.dart';
+import 'package:stemxplore/steminfo/steminfopage.dart';
 
 class Mainpage extends StatefulWidget {
   const Mainpage({super.key});
@@ -15,7 +24,30 @@ class Mainpage extends StatefulWidget {
 class _MainpageState extends State<Mainpage> {
   int currentIndex = 0;
 
-  final List<Widget> pages = const [Homepage(), Bookmarkpage(), Settingpage()];
+  late final List<Widget> pages;
+
+  @override
+  void initState() {
+    super.initState();
+    pages = [
+      Homepage(
+        onNavigate: (index) {
+          setState(() {
+            currentIndex = index;
+          });
+        },
+      ),
+      const Bookmarkpage(),
+      const Settingpage(),
+      //function pages
+      const Steminfopage(),
+      const Learningmaterialpage(),
+      const Careerpage(),
+      const Dailychallengepage(),
+      const Faqpage(),
+      const Quizgamepage(),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,9 +79,9 @@ class _MainpageState extends State<Mainpage> {
                 });
               },
               tabs: const [
-                GButton(icon: Icons.home, text: 'Home'),
-                GButton(icon: Icons.bookmark, text: 'Bookmarks'),
-                GButton(icon: Icons.settings, text: 'Settings'),
+                GButton(icon: Icons.home),
+                GButton(icon: Icons.bookmark),
+                GButton(icon: Icons.settings),
               ],
             ),
           ),

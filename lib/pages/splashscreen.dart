@@ -19,7 +19,7 @@ class _SplashpageState extends State<Splashpage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SizedBox(height: 20),
-              Image.asset('assets/images/logostem.png'),
+              Image.asset('assets/images/logoicon2.png'),
               Text(
                 'STEM Xplore F3',
 

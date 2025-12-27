@@ -1,30 +1,42 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-// import feature pages
-import 'package:stemxplore/career/careerpage.dart';
-import 'package:stemxplore/dailychallenge/dailychallengepage.dart';
-import 'package:stemxplore/faq/faqpage.dart';
-import 'package:stemxplore/learningmaterial/learningmaterialpage.dart';
-import 'package:stemxplore/quizgame/quizgamepage.dart';
-import 'package:stemxplore/steminfo/steminfopage.dart';
-// carousel slider import
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:stemxplore/ipaddress.dart';
+
+import 'package:stemxplore/stemhighlight/stem_highlight.dart';
 
 class Homepage extends StatefulWidget {
-  const Homepage({super.key});
+  final Function(int) onNavigate;
+
+  const Homepage({super.key, required this.onNavigate});
 
   @override
   State<Homepage> createState() => _HomepageState();
 }
 
 class _HomepageState extends State<Homepage> {
-  // highlight
-  late List highlightTitles = [
-    'STEM in Daily Life',
-    'Fun Science Facts',
-    'Future STEM Careers',
-  ];
-
+  List highlights = [];
   int currentHighlightIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchStemHighlights();
+  }
+
+  Future<void> fetchStemHighlights() async {
+    final response = await http.get(
+      Uri.parse('${ipaddress.baseUrl}api/get_stem_highlight.php'),
+    );
+
+    if (response.statusCode == 200) {
+      setState(() {
+        highlights = json.decode(response.body);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -32,36 +44,89 @@ class _HomepageState extends State<Homepage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: 20),
-          // caroutsell input
-          Text(
+          const SizedBox(height: 20),
+
+          const Text(
             'STEM Highlights',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
 
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
 
-          CarouselSlider(
-            items: highlightTitles.map((title) {
-              return highlightCard(title);
-            }).toList(),
-            options: CarouselOptions(
-              height: 150,
-              enlargeCenterPage: true,
-              autoPlay: true,
-              onPageChanged: (index, reason) {
-                setState(() {
-                  currentHighlightIndex = index;
-                });
-              },
-            ),
-          ),
+          ///STEM HIGHLIGHT CAROUSEL (DATABASE)
+          highlights.isEmpty
+              ? const Center(child: CircularProgressIndicator())
+              : CarouselSlider(
+                  items: highlights.map((item) {
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => StemHighlight(data: item),
+                          ),
+                        );
+                      },
+                      child: Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            Image.network(item['media'][0], fit: BoxFit.cover),
+                            Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(15),
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Colors.black.withOpacity(0.6),
+                                    Colors.transparent,
+                                  ],
+                                  begin: Alignment.bottomCenter,
+                                  end: Alignment.topCenter,
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 12,
+                              left: 12,
+                              right: 12,
+                              child: Text(
+                                item['highlight_title'],
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                  options: CarouselOptions(
+                    height: 180,
+                    autoPlay: true,
+                    enlargeCenterPage: true,
+                    viewportFraction: 0.9,
+                    onPageChanged: (index, reason) {
+                      setState(() {
+                        currentHighlightIndex = index;
+                      });
+                    },
+                  ),
+                ),
 
-          Text(
+          const SizedBox(height: 20),
+
+          const Text(
             'Explore Features',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
 
+          ///FEATURES GRID (UNCHANGED)
           GridView.count(
             crossAxisCount: 2,
             shrinkWrap: true,
@@ -70,52 +135,36 @@ class _HomepageState extends State<Homepage> {
               FeatureCard(
                 imagePath: 'assets/images/infostem.png',
                 title: 'STEM Info',
-                destinationPage: const Steminfopage(),
+                onTap: () => widget.onNavigate(3),
               ),
               FeatureCard(
                 imagePath: 'assets/images/learningmaterial.png',
-                title: ' Learning Material',
-                destinationPage: const Learningmaterialpage(),
+                title: 'Learning Material',
+                onTap: () => widget.onNavigate(4),
               ),
               FeatureCard(
                 imagePath: 'assets/images/gameicon.png',
                 title: 'Quiz Games',
-                destinationPage: const Quizgamepage(),
+                onTap: () => widget.onNavigate(5),
               ),
               FeatureCard(
                 imagePath: 'assets/images/career.png',
                 title: 'STEM Careers',
-                destinationPage: const Careerpage(),
+                onTap: () => widget.onNavigate(6),
               ),
               FeatureCard(
                 imagePath: 'assets/images/dailychallengeicon.png',
                 title: 'Daily Challenge',
-                destinationPage: const Dailychallengepage(),
+                onTap: () => widget.onNavigate(7),
               ),
               FeatureCard(
                 imagePath: 'assets/images/faqicon.png',
                 title: 'FAQ',
-                destinationPage: const Faqpage(),
+                onTap: () => widget.onNavigate(8),
               ),
             ],
           ),
         ],
-      ),
-    );
-  }
-
-  Widget highlightCard(String title) {
-    return SizedBox(
-      width: 300,
-      height: 50,
-      child: Card(
-        child: Center(
-          child: Text(
-            title,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-        ),
       ),
     );
   }
@@ -124,38 +173,27 @@ class _HomepageState extends State<Homepage> {
 class FeatureCard extends StatelessWidget {
   final String imagePath;
   final String title;
-  final Widget destinationPage;
+  final VoidCallback onTap;
 
   const FeatureCard({
     super.key,
     required this.imagePath,
     required this.title,
-    required this.destinationPage,
+    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return Card(
       child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => destinationPage),
-          );
-        },
-
+        onTap: onTap,
         borderRadius: BorderRadius.circular(12),
-
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset(imagePath, width: 80, height: 80, fit: BoxFit.contain),
-            SizedBox(height: 8),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontWeight: FontWeight.w600),
-            ),
+            Image.asset(imagePath, width: 80, height: 80),
+            const SizedBox(height: 8),
+            Text(title),
           ],
         ),
       ),
