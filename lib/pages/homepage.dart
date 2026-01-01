@@ -8,8 +8,13 @@ import 'package:stemxplore/stemhighlight/stem_highlight.dart';
 
 class Homepage extends StatefulWidget {
   final Function(int) onNavigate;
+  final Function(Map) onHighlightTap;
 
-  const Homepage({super.key, required this.onNavigate});
+  const Homepage({
+    super.key,
+    required this.onNavigate,
+    required this.onHighlightTap,
+  });
 
   @override
   State<Homepage> createState() => _HomepageState();
@@ -44,11 +49,33 @@ class _HomepageState extends State<Homepage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 20),
+          SizedBox(height: 10),
 
-          const Text(
-            'STEM Highlights',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          Stack(
+            children: [
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: Padding(
+                  padding: EdgeInsets.only(top: 8), // move down a bit
+                  child: Text(
+                    'STEM Highlights',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+
+              Positioned(
+                top: 0,
+                right: 0,
+                child: IconButton(
+                  icon: const Icon(Icons.info_outline, color: Colors.black),
+                  iconSize: 28,
+                  onPressed: () {
+                    widget.onNavigate(11); // navigate to Infopage
+                  },
+                ),
+              ),
+            ],
           ),
 
           const SizedBox(height: 12),
@@ -59,28 +86,18 @@ class _HomepageState extends State<Homepage> {
               : CarouselSlider(
                   items: highlights.map((item) {
                     return GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => StemHighlight(data: item),
-                          ),
-                        );
-                      },
-                      child: Card(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15),
-                        ),
+                      onTap: () => widget.onHighlightTap(item),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
                         child: Stack(
                           fit: StackFit.expand,
                           children: [
                             Image.network(item['media'][0], fit: BoxFit.cover),
                             Container(
                               decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(15),
                                 gradient: LinearGradient(
                                   colors: [
-                                    Colors.black.withOpacity(0.6),
+                                    Colors.black.withOpacity(0.5),
                                     Colors.transparent,
                                   ],
                                   begin: Alignment.bottomCenter,
@@ -89,15 +106,21 @@ class _HomepageState extends State<Homepage> {
                               ),
                             ),
                             Positioned(
-                              bottom: 12,
-                              left: 12,
-                              right: 12,
+                              bottom: 20,
+                              left: 20,
                               child: Text(
                                 item['highlight_title'],
                                 style: const TextStyle(
                                   color: Colors.white,
-                                  fontSize: 18,
+                                  fontSize: 20,
                                   fontWeight: FontWeight.bold,
+                                  shadows: [
+                                    Shadow(
+                                      color: Colors.black45,
+                                      offset: Offset(1, 1),
+                                      blurRadius: 4,
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
@@ -110,7 +133,11 @@ class _HomepageState extends State<Homepage> {
                     height: 180,
                     autoPlay: true,
                     enlargeCenterPage: true,
-                    viewportFraction: 0.9,
+                    viewportFraction: 0.85,
+                    autoPlayCurve: Curves.fastOutSlowIn,
+                    autoPlayAnimationDuration: const Duration(
+                      milliseconds: 800,
+                    ),
                     onPageChanged: (index, reason) {
                       setState(() {
                         currentHighlightIndex = index;
@@ -119,50 +146,55 @@ class _HomepageState extends State<Homepage> {
                   ),
                 ),
 
-          const SizedBox(height: 20),
-
-          const Text(
-            'Explore Features',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-
           ///FEATURES GRID (UNCHANGED)
-          GridView.count(
-            crossAxisCount: 2,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            children: [
-              FeatureCard(
-                imagePath: 'assets/images/infostem.png',
-                title: 'STEM Info',
-                onTap: () => widget.onNavigate(3),
-              ),
-              FeatureCard(
-                imagePath: 'assets/images/learningmaterial.png',
-                title: 'Learning Material',
-                onTap: () => widget.onNavigate(4),
-              ),
-              FeatureCard(
-                imagePath: 'assets/images/gameicon.png',
-                title: 'Quiz Games',
-                onTap: () => widget.onNavigate(5),
-              ),
-              FeatureCard(
-                imagePath: 'assets/images/career.png',
-                title: 'STEM Careers',
-                onTap: () => widget.onNavigate(6),
-              ),
-              FeatureCard(
-                imagePath: 'assets/images/dailychallengeicon.png',
-                title: 'Daily Challenge',
-                onTap: () => widget.onNavigate(7),
-              ),
-              FeatureCard(
-                imagePath: 'assets/images/faqicon.png',
-                title: 'FAQ',
-                onTap: () => widget.onNavigate(8),
-              ),
-            ],
+          Container(
+            padding: EdgeInsets.fromLTRB(
+              10,
+              0,
+              10,
+              32,
+            ), // Padding around the grid(16),
+
+            child: GridView.count(
+              crossAxisCount: 2,
+              shrinkWrap: true,
+              mainAxisSpacing: 4, // vertical gap
+              crossAxisSpacing: 4, // horizontal gap
+
+              physics: const NeverScrollableScrollPhysics(),
+              children: [
+                FeatureCard(
+                  imagePath: 'assets/images/infostem2.png',
+                  title: 'STEM Info',
+                  onTap: () => widget.onNavigate(3),
+                ),
+                FeatureCard(
+                  imagePath: 'assets/images/learningmaterial2.png',
+                  title: 'Learning Material',
+                  onTap: () => widget.onNavigate(4),
+                ),
+                FeatureCard(
+                  imagePath: 'assets/images/quizicon2.png',
+                  title: 'Quiz',
+                  onTap: () => widget.onNavigate(5),
+                ),
+                FeatureCard(
+                  imagePath: 'assets/images/career2.png',
+                  title: 'STEM Careers',
+                  onTap: () => widget.onNavigate(6),
+                ),
+                FeatureCard(
+                  imagePath: 'assets/images/dailychallengeicon2.png',
+                  title: 'Daily Challenge',
+                  onTap: () => widget.onNavigate(7),
+                ),
+                FeatureCard(
+                  imagePath: 'assets/images/faqicon2.png',
+                  title: 'FAQ',
+                  onTap: () => widget.onNavigate(8),
+                ),
+              ],
+            ),
           ),
         ],
       ),

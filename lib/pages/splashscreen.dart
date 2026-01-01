@@ -9,46 +9,76 @@ class Splashpage extends StatefulWidget {
   State<Splashpage> createState() => _SplashpageState();
 }
 
-class _SplashpageState extends State<Splashpage> {
-  @override
-  Widget build(BuildContext context) {
-    return GradientBackground(
-      child: Scaffold(
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox(height: 20),
-              Image.asset('assets/images/logoicon2.png'),
-              Text(
-                'STEM Xplore F3',
-
-                style: TextStyle(
-                  fontSize: 40,
-                  fontWeight: FontWeight.bold,
-                  color: const Color.fromARGB(255, 0, 0, 0),
-                ),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: 20),
-              CircularProgressIndicator(),
-              SizedBox(height: 20),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+class _SplashpageState extends State<Splashpage>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
 
   @override
   void initState() {
     super.initState();
 
-    Future.delayed(const Duration(seconds: 10), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => Mainpage()),
-      );
-    });
+    /// Animation controller
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat(reverse: true);
+
+    /// Scale (pulse) animation
+    _scaleAnimation = Tween<double>(
+      begin: 0.9,
+      end: 1.05,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _goNextPage() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const Mainpage()),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GradientBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const SizedBox(height: 20),
+
+              /// TAP + ANIMATION
+              GestureDetector(
+                onTap: _goNextPage,
+                child: ScaleTransition(
+                  scale: _scaleAnimation,
+                  child: Image.asset('assets/images/logoicon2.png', width: 180),
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              const Text(
+                'Discover your future in Science, Technology,\nEngineering & Mathematics',
+                style: TextStyle(fontSize: 18, color: Colors.black),
+                textAlign: TextAlign.center,
+              ),
+
+              const SizedBox(height: 30),
+
+              /// Hint text
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

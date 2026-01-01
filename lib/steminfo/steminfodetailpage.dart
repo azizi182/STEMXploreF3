@@ -14,12 +14,22 @@ class StemInfoDetailPage extends StatelessWidget {
 
     return GradientBackground(
       child: Scaffold(
-        appBar: AppBar(title: Text(stemInfo['info_title'])),
+        appBar: AppBar(
+          title: Text(stemInfo['info_title']),
+          titleTextStyle: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 24,
+            color: Colors.black,
+          ),
+          centerTitle: true,
+        ),
+        //body
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              //media
               stemInfo['info_type'] == 'video'
                   ? VideoWidget(url: fileUrl)
                   : Image.network(
@@ -29,6 +39,7 @@ class StemInfoDetailPage extends StatelessWidget {
                       fit: BoxFit.cover,
                     ),
               const SizedBox(height: 16),
+              //title
               Text(
                 stemInfo['info_title'],
                 style: const TextStyle(
@@ -37,6 +48,7 @@ class StemInfoDetailPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
+              //description
               Text(
                 stemInfo['info_desc'] ?? '',
                 style: const TextStyle(fontSize: 16),

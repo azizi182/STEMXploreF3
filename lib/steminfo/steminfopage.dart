@@ -7,7 +7,8 @@ import 'dart:convert';
 import 'package:video_player/video_player.dart';
 
 class Steminfopage extends StatefulWidget {
-  const Steminfopage({super.key});
+  final Function(dynamic) onSelect;
+  const Steminfopage({super.key, required this.onSelect});
 
   @override
   State<Steminfopage> createState() => _SteminfopageState();
@@ -79,12 +80,7 @@ class _SteminfopageState extends State<Steminfopage> {
 
                   return GestureDetector(
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => StemInfoDetailPage(stemInfo: item),
-                        ),
-                      );
+                      widget.onSelect(item);
                     },
                     child: Card(
                       elevation: 4,
