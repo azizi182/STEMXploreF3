@@ -110,7 +110,7 @@ class _FaqpageState extends State<Faqpage> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 5),
+
                       AnimatedCrossFade(
                         firstChild: const SizedBox.shrink(),
                         secondChild: Container(

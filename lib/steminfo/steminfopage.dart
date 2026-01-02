@@ -15,7 +15,7 @@ class Steminfopage extends StatefulWidget {
 }
 
 class _SteminfopageState extends State<Steminfopage> {
-  List<dynamic> stemInfoList = [];
+  List stemInfoList = [];
   bool isLoading = true;
 
   @override
@@ -76,7 +76,10 @@ class _SteminfopageState extends State<Steminfopage> {
                     const SizedBox(height: 16),
                 itemBuilder: (context, index) {
                   final item = stemInfoList[index];
-                  final fileUrl = item['media'];
+                  final List mediaList = item['media'];
+                  final String fileUrl = mediaList.isNotEmpty
+                      ? mediaList[0]
+                      : '';
 
                   return GestureDetector(
                     onTap: () {

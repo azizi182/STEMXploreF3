@@ -56,7 +56,7 @@ class _HomepageState extends State<Homepage> {
               const Align(
                 alignment: Alignment.centerLeft,
                 child: Padding(
-                  padding: EdgeInsets.only(top: 8), // move down a bit
+                  padding: EdgeInsets.only(top: 10), // move down a bit
                   child: Text(
                     'STEM Highlights',
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -92,7 +92,7 @@ class _HomepageState extends State<Homepage> {
                         child: Stack(
                           fit: StackFit.expand,
                           children: [
-                            Image.network(item['media'][0], fit: BoxFit.cover),
+                            Image.network(item['media'][0], fit: BoxFit.fill),
                             Container(
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
@@ -223,8 +223,8 @@ class FeatureCard extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset(imagePath, width: 80, height: 80),
-            const SizedBox(height: 8),
+            Image.asset(imagePath, width: 120, height: 120),
+            const SizedBox(height: 5),
             Text(title),
           ],
         ),
