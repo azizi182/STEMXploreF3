@@ -93,29 +93,62 @@ class _SteminfopageState extends State<Steminfopage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          ClipRRect(
-                            borderRadius: const BorderRadius.vertical(
-                              top: Radius.circular(12),
-                            ),
-                            child: item['info_type'] == 'video'
-                                ? VideoWidget(url: fileUrl)
-                                : Image.network(
-                                    fileUrl,
-                                    height: 180,
-                                    width: double.infinity,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return Container(
-                                        height: 180,
-                                        color: Colors.grey[300],
-                                        child: const Center(
-                                          child: Icon(
-                                            Icons.image_not_supported,
+                          Container(
+                            padding: EdgeInsets.fromLTRB(10, 24, 10, 20),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(20),
+                              child: Container(
+                                width: double.infinity,
+                                height: 260,
+                                color: Colors.grey.shade200,
+                                child: item['info_type'] == 'video'
+                                    ? Stack(
+                                        alignment: Alignment.center,
+                                        children: [
+                                          Image.network(
+                                            fileUrl.replaceAll(
+                                              '.mp4',
+                                              '.jpg',
+                                            ), // optional thumbnail
+                                            width: double.infinity,
+                                            height: 260,
+                                            fit: BoxFit.cover,
+                                            errorBuilder:
+                                                (context, error, stackTrace) {
+                                                  return Container(
+                                                    color: Colors.black12,
+                                                    width: double.infinity,
+                                                    height: 260,
+                                                  );
+                                                },
                                           ),
-                                        ),
-                                      );
-                                    },
-                                  ),
+                                          const Icon(
+                                            Icons.play_circle_fill,
+                                            color: Colors.white,
+                                            size: 64,
+                                          ),
+                                        ],
+                                      )
+                                    : Image.network(
+                                        fileUrl,
+                                        width: double.infinity,
+                                        height: 260,
+                                        fit: BoxFit.cover,
+                                        errorBuilder:
+                                            (context, error, stackTrace) {
+                                              return Container(
+                                                height: 260,
+                                                color: Colors.grey[300],
+                                                child: const Center(
+                                                  child: Icon(
+                                                    Icons.image_not_supported,
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                      ),
+                              ),
+                            ),
                           ),
                           Padding(
                             padding: const EdgeInsets.all(12.0),
@@ -135,54 +168,5 @@ class _SteminfopageState extends State<Steminfopage> {
               ),
       ),
     );
-  }
-}
-
-// Video Player Widget
-class VideoWidget extends StatefulWidget {
-  final String url;
-  const VideoWidget({super.key, required this.url});
-
-  @override
-  State<VideoWidget> createState() => _VideoWidgetState();
-}
-
-class _VideoWidgetState extends State<VideoWidget> {
-  late VideoPlayerController _controller;
-  bool initialized = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = VideoPlayerController.network(widget.url)
-      ..initialize().then((_) {
-        setState(() {
-          initialized = true;
-        });
-      });
-    _controller.setLooping(true);
-    _controller.setVolume(0.0);
-    _controller.play();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return initialized
-        ? SizedBox(
-            height: 180,
-            width: double.infinity,
-            child: VideoPlayer(_controller),
-          )
-        : Container(
-            height: 180,
-            color: Colors.grey[300],
-            child: const Center(child: CircularProgressIndicator()),
-          );
   }
 }

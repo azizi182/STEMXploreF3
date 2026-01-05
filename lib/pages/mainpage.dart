@@ -4,7 +4,6 @@ import 'package:stemxplore/gradient_background.dart';
 import 'package:stemxplore/pages/bookmarkpage.dart';
 import 'package:stemxplore/pages/homepage.dart';
 import 'package:stemxplore/pages/infopage.dart';
-import 'package:stemxplore/pages/settingpage.dart';
 import 'package:stemxplore/stemhighlight/stem_highlight.dart';
 import 'package:stemxplore/steminfo/steminfodetailpage.dart';
 //fucntion page imports
@@ -36,7 +35,7 @@ class _MainpageState extends State<Mainpage> {
       onHighlightTap: onHighlightSelected,
     ), //0
     const Bookmarkpage(), //1
-    const Settingpage(), //2
+    const Infopage(), //2
     //function pages
     Steminfopage(onSelect: onStemSelect), //3
     const Learningmaterialpage(), //4
@@ -53,7 +52,6 @@ class _MainpageState extends State<Mainpage> {
     selectedStemInfo != null
         ? StemInfoDetailPage(stemInfo: selectedStemInfo)
         : const SizedBox(), //10
-    const Infopage(), //11
   ];
 
   void onFeatureNavigate(int index) {
@@ -109,7 +107,7 @@ class _MainpageState extends State<Mainpage> {
             items: const [
               Icon(Icons.home, size: 24, color: Colors.white),
               Icon(Icons.bookmark, size: 24, color: Colors.white),
-              Icon(Icons.settings, size: 24, color: Colors.white),
+              Icon(Icons.info, size: 24, color: Colors.white),
             ],
 
             onTap: (index) {

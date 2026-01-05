@@ -4,10 +4,17 @@ import 'package:stemxplore/gradient_background.dart';
 import 'package:stemxplore/ipaddress.dart';
 import 'package:video_player/video_player.dart';
 
-class StemInfoDetailPage extends StatelessWidget {
+class StemInfoDetailPage extends StatefulWidget {
   final Map stemInfo;
 
   const StemInfoDetailPage({super.key, required this.stemInfo});
+
+  @override
+  State<StemInfoDetailPage> createState() => _StemInfoDetailPageState();
+}
+
+class _StemInfoDetailPageState extends State<StemInfoDetailPage> {
+  //VoidCallback? get _toggleBookmark => null;
 
   @override
   Widget build(BuildContext context) {
@@ -45,20 +52,32 @@ class StemInfoDetailPage extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           /// TITLE
-                          Text(
-                            stemInfo['info_title'],
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              height: 1.3,
-                            ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                widget.stemInfo['info_title'],
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  height: 1.3,
+                                ),
+                              ),
+
+                              IconButton(
+                                icon: Icon(Icons.bookmark),
+                                onPressed: () {},
+                              ),
+                            ],
                           ),
+
+                          const SizedBox(height: 10),
 
                           /// DESCRIPTION
                           Text(
-                            stemInfo['info_desc'],
+                            widget.stemInfo['info_desc'],
                             maxLines: 6,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
@@ -84,11 +103,11 @@ class StemInfoDetailPage extends StatelessWidget {
 
   /// MEDIA BUILDER
   Widget _buildMedia() {
-    final List mediaList = stemInfo['media'] is List
-        ? stemInfo['media']
-        : [stemInfo['media']];
+    final List mediaList = widget.stemInfo['media'] is List
+        ? widget.stemInfo['media']
+        : [widget.stemInfo['media']];
 
-    if (stemInfo['info_type'] == 'image') {
+    if (widget.stemInfo['info_type'] == 'image') {
       return CarouselSlider(
         options: CarouselOptions(
           height: 300,
@@ -135,7 +154,6 @@ Widget _imageItem(String url) {
 }
 
 // Video Widget (same as above)
-
 class VideoWidget extends StatefulWidget {
   final String url;
   const VideoWidget({super.key, required this.url});
@@ -146,18 +164,28 @@ class VideoWidget extends StatefulWidget {
 
 class _VideoWidgetState extends State<VideoWidget> {
   late VideoPlayerController controller;
+  bool isDisposed = false;
 
   @override
   void initState() {
     super.initState();
-    controller = VideoPlayerController.network(widget.url)
+    controller = VideoPlayerController.networkUrl(Uri.parse(widget.url))
       ..initialize().then((_) {
-        setState(() {});
+        if (!isDisposed && mounted) setState(() {});
       });
+    controller.setLooping(false);
+    controller.setVolume(1.0);
+
+    // Listen to controller to update progress bar
+    controller.addListener(() {
+      if (!isDisposed && mounted) setState(() {});
+    });
   }
 
   @override
   void dispose() {
+    isDisposed = true;
+    controller.pause();
     controller.dispose();
     super.dispose();
   }
@@ -165,35 +193,47 @@ class _VideoWidgetState extends State<VideoWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 300,
-      color: Colors.black,
-      child: controller.value.isInitialized
-          ? Stack(
-              alignment: Alignment.center,
-              children: [
-                AspectRatio(
-                  aspectRatio: controller.value.aspectRatio,
-                  child: VideoPlayer(controller),
-                ),
-                IconButton(
-                  iconSize: 56,
-                  color: Colors.white,
-                  icon: Icon(
-                    controller.value.isPlaying
-                        ? Icons.pause_circle
-                        : Icons.play_circle,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      controller.value.isPlaying
-                          ? controller.pause()
-                          : controller.play();
-                    });
-                  },
-                ),
-              ],
-            )
-          : const Center(child: CircularProgressIndicator()),
+      padding: const EdgeInsets.fromLTRB(10, 24, 10, 20),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          width: double.infinity,
+          height: 220,
+          color: Colors.grey.shade200,
+          child: controller.value.isInitialized
+              ? Stack(
+                  alignment: Alignment.bottomLeft,
+                  children: [
+                    FittedBox(
+                      fit: BoxFit.cover,
+                      child: SizedBox(
+                        width: controller.value.size.width,
+                        height: controller.value.size.height,
+                        child: VideoPlayer(controller),
+                      ),
+                    ),
+                    // Gradient overlay at bottom for controls
+                    IconButton(
+                      iconSize: 30,
+                      color: Colors.white,
+                      icon: Icon(
+                        controller.value.isPlaying
+                            ? Icons.pause
+                            : Icons.play_arrow,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          controller.value.isPlaying
+                              ? controller.pause()
+                              : controller.play();
+                        });
+                      },
+                    ),
+                  ],
+                )
+              : const Center(child: CircularProgressIndicator()),
+        ),
+      ),
     );
   }
 }

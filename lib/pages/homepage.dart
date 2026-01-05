@@ -49,36 +49,76 @@ class _HomepageState extends State<Homepage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: 10),
+          //languange
+          IconButton(onPressed: () {}, icon: const Icon(Icons.language)),
+          // const SizedBox(height: 10),
+
+          ///FEATURES GRID (UNCHANGED)
+          Container(
+            padding: EdgeInsets.fromLTRB(
+              10,
+              0,
+              10,
+              10,
+            ), // Padding around the grid(16),
+
+            child: GridView.count(
+              crossAxisCount: 2,
+              shrinkWrap: true,
+              mainAxisSpacing: 4, // vertical gap
+              crossAxisSpacing: 4, // horizontal gap
+
+              physics: const NeverScrollableScrollPhysics(),
+              children: [
+                FeatureCard(
+                  imagePath: 'assets/images/infostem2.png',
+                  title: 'STEM Info',
+                  onTap: () => widget.onNavigate(3),
+                ),
+                FeatureCard(
+                  imagePath: 'assets/images/learningmaterial2.png',
+                  title: 'Learning Material',
+                  onTap: () => widget.onNavigate(4),
+                ),
+                FeatureCard(
+                  imagePath: 'assets/images/quizicon2.png',
+                  title: 'Quiz',
+                  onTap: () => widget.onNavigate(5),
+                ),
+                FeatureCard(
+                  imagePath: 'assets/images/career2.png',
+                  title: 'STEM Careers',
+                  onTap: () => widget.onNavigate(6),
+                ),
+                FeatureCard(
+                  imagePath: 'assets/images/dailychallengeicon2.png',
+                  title: 'Daily Challenge',
+                  onTap: () => widget.onNavigate(7),
+                ),
+                FeatureCard(
+                  imagePath: 'assets/images/faqicon2.png',
+                  title: 'FAQ',
+                  onTap: () => widget.onNavigate(8),
+                ),
+              ],
+            ),
+          ),
 
           Stack(
             children: [
               const Align(
                 alignment: Alignment.centerLeft,
-                child: Padding(
-                  padding: EdgeInsets.only(top: 10), // move down a bit
-                  child: Text(
-                    'STEM Highlights',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
+                child: Text(
+                  'STEM Highlights',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
               ),
-
-              Positioned(
-                top: 0,
-                right: 0,
-                child: IconButton(
-                  icon: const Icon(Icons.info_outline, color: Colors.black),
-                  iconSize: 28,
-                  onPressed: () {
-                    widget.onNavigate(11); // navigate to Infopage
-                  },
-                ),
-              ),
+              //map
+              // Positioned(top: 0, right: 0, child: GestureDetector()),
             ],
           ),
 
-          const SizedBox(height: 12),
+          SizedBox(height: 4),
 
           ///STEM HIGHLIGHT CAROUSEL (DATABASE)
           highlights.isEmpty
@@ -145,57 +185,6 @@ class _HomepageState extends State<Homepage> {
                     },
                   ),
                 ),
-
-          ///FEATURES GRID (UNCHANGED)
-          Container(
-            padding: EdgeInsets.fromLTRB(
-              10,
-              0,
-              10,
-              32,
-            ), // Padding around the grid(16),
-
-            child: GridView.count(
-              crossAxisCount: 2,
-              shrinkWrap: true,
-              mainAxisSpacing: 4, // vertical gap
-              crossAxisSpacing: 4, // horizontal gap
-
-              physics: const NeverScrollableScrollPhysics(),
-              children: [
-                FeatureCard(
-                  imagePath: 'assets/images/infostem2.png',
-                  title: 'STEM Info',
-                  onTap: () => widget.onNavigate(3),
-                ),
-                FeatureCard(
-                  imagePath: 'assets/images/learningmaterial2.png',
-                  title: 'Learning Material',
-                  onTap: () => widget.onNavigate(4),
-                ),
-                FeatureCard(
-                  imagePath: 'assets/images/quizicon2.png',
-                  title: 'Quiz',
-                  onTap: () => widget.onNavigate(5),
-                ),
-                FeatureCard(
-                  imagePath: 'assets/images/career2.png',
-                  title: 'STEM Careers',
-                  onTap: () => widget.onNavigate(6),
-                ),
-                FeatureCard(
-                  imagePath: 'assets/images/dailychallengeicon2.png',
-                  title: 'Daily Challenge',
-                  onTap: () => widget.onNavigate(7),
-                ),
-                FeatureCard(
-                  imagePath: 'assets/images/faqicon2.png',
-                  title: 'FAQ',
-                  onTap: () => widget.onNavigate(8),
-                ),
-              ],
-            ),
-          ),
         ],
       ),
     );

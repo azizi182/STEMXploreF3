@@ -9,28 +9,21 @@ class Bookmarkpage extends StatefulWidget {
 }
 
 class _BookmarkpageState extends State<Bookmarkpage> {
+  //List<Map<String, dynamic>> bookmarks = [];
+
+  @override
+  // void initState() {
+  //   super.initState();
+  //   BookmarkManager().init().then((_) {
+  //     setState(() {
+  //       bookmarks = BookmarkManager().getBookmarks('learning');
+  //     });
+  //   });
+  // }
   @override
   Widget build(BuildContext context) {
     return GradientBackground(
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        appBar: AppBar(
-          title: Text('Bookmarks'),
-          titleTextStyle: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 24,
-            color: Colors.black,
-          ),
-          centerTitle: true,
-        ),
-        body: const Center(
-          child: Text(
-            'Your bookmarked STEM content will appear here.',
-            style: TextStyle(fontSize: 18),
-            textAlign: TextAlign.center,
-          ),
-        ),
-      ),
+      child: Scaffold(appBar: AppBar(title: Text('Bookmarks'))),
     );
   }
 }
