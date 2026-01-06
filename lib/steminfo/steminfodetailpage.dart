@@ -1,5 +1,6 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localization/flutter_localization.dart';
 import 'package:stemxplore/gradient_background.dart';
 import 'package:stemxplore/ipaddress.dart';
 import 'package:video_player/video_player.dart';
@@ -18,83 +19,91 @@ class _StemInfoDetailPageState extends State<StemInfoDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final FlutterLocalization localization = FlutterLocalization.instance;
+    final String currentLang = localization.currentLocale?.languageCode ?? 'en';
+    final bool isEnglish = currentLang == 'en';
     return GradientBackground(
       child: Scaffold(
+        appBar: buildCustomAppBar(isEnglish, widget.stemInfo['info_title']),
         backgroundColor: Colors.transparent,
         extendBodyBehindAppBar: true,
         body: Stack(
           children: [
-            SingleChildScrollView(
-              child: Padding(
-                padding: EdgeInsets.only(top: 30),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    /// HERO MEDIA
-                    _buildMedia(),
-
-                    /// CONTENT CARD
-                    Container(
-                      padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
-                      margin: const EdgeInsets.fromLTRB(10, 0, 10, 10),
-                      constraints: const BoxConstraints(
-                        minHeight: 220, // 🔥 FIXED MIN HEIGHT
+            Center(
+              child: SingleChildScrollView(
+                child: Container(
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(20)),
+                    color: Color.fromRGBO(147, 218, 151, 1),
+                  ),
+                  child: Column(
+                    children: [
+                      /// MEDIA CARD
+                      Container(
+                        margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                        decoration: BoxDecoration(
+                          color: Colors.white, // card color for media
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: _buildMedia(),
                       ),
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.vertical(
-                          top: Radius.circular(20),
-                          bottom: Radius.circular(20),
+
+                      /// TITLE + DESCRIPTION CARD
+                      Container(
+                        margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                        padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
+                        decoration: BoxDecoration(
+                          color: Colors.white, // card background
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        constraints: const BoxConstraints(minHeight: 220),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            /// TITLE + BOOKMARK
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    widget.stemInfo['info_title'],
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                      height: 1.3,
+                                    ),
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.bookmark),
+                                  onPressed: () {},
+                                ),
+                              ],
+                            ),
+
+                            const SizedBox(height: 10),
+
+                            /// DESCRIPTION
+                            Text(
+                              widget.stemInfo['info_desc'],
+                              maxLines: 6,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                height: 1.7,
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      child: Column(
-                        // mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          /// TITLE
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                widget.stemInfo['info_title'],
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  height: 1.3,
-                                ),
-                              ),
-
-                              IconButton(
-                                icon: Icon(Icons.bookmark),
-                                onPressed: () {},
-                              ),
-                            ],
-                          ),
-
-                          const SizedBox(height: 10),
-
-                          /// DESCRIPTION
-                          Text(
-                            widget.stemInfo['info_desc'],
-                            maxLines: 6,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              height: 1.7,
-                              color: Colors.black87,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
-
-            /// BACK BUTTON (Overlay)
           ],
         ),
       ),
@@ -198,7 +207,7 @@ class _VideoWidgetState extends State<VideoWidget> {
         borderRadius: BorderRadius.circular(20),
         child: Container(
           width: double.infinity,
-          height: 220,
+          height: 200,
           color: Colors.grey.shade200,
           child: controller.value.isInitialized
               ? Stack(
@@ -236,4 +245,61 @@ class _VideoWidgetState extends State<VideoWidget> {
       ),
     );
   }
+}
+
+AppBar buildCustomAppBar(bool isEnglish, String title) {
+  return AppBar(
+    title: Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // Left Side: App title with F3 badge
+          const SizedBox(width: 50),
+          Text(
+            title,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 22,
+              color: Colors.black,
+            ),
+          ),
+
+          // Right Side: Flag toggle (for display only now)
+          GestureDetector(
+            onTap: () {
+              // TODO: Implement language translation here
+              // Example: toggle isEnglish variable and call your translator later
+              // setState(() { isEnglish = !isEnglish; });
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.black, width: 1),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 6,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: ClipOval(
+                child: Image.asset(
+                  // The flag changes based on isEnglish
+                  isEnglish
+                      ? 'assets/flag/language ms_flag.png'
+                      : 'assets/flag/language us_flag.png',
+                  width: 36,
+                  height: 36,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+    backgroundColor: Color.fromARGB(255, 52, 137, 55),
+  );
 }

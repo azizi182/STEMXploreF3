@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter_localization/flutter_localization.dart';
 import 'package:stemxplore/gradient_background.dart';
+import 'package:stemxplore/steminfo/steminfodetailpage.dart';
 import 'package:video_player/video_player.dart';
 
 class StemHighlight extends StatelessWidget {
@@ -9,65 +11,73 @@ class StemHighlight extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final FlutterLocalization localization = FlutterLocalization.instance;
+    final String currentLang = localization.currentLocale?.languageCode ?? 'en';
+    final bool isEnglish = currentLang == 'en';
     return GradientBackground(
       child: Scaffold(
-        backgroundColor: Colors.transparent,
+        appBar: buildCustomAppBar(isEnglish, data['highlight_title']),
         body: Stack(
           children: [
-            SingleChildScrollView(
-              child: Container(
-                padding: EdgeInsets.only(top: 30),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    /// HERO MEDIA
-                    _buildMedia(),
+            Center(
+              child: SingleChildScrollView(
+                child: Container(
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(20)),
+                    color: Color.fromRGBO(147, 218, 151, 1),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      /// HERO MEDIA
+                      _buildMedia(),
 
-                    /// CONTENT CARD
-                    Container(
-                      padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
-                      margin: const EdgeInsets.fromLTRB(10, 0, 10, 10),
-                      constraints: const BoxConstraints(
-                        minHeight: 220, // 🔥 FIXED MIN HEIGHT
-                      ),
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.vertical(
-                          top: Radius.circular(20),
-                          bottom: Radius.circular(20),
+                      /// CONTENT CARD
+                      Container(
+                        padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
+                        margin: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+                        constraints: const BoxConstraints(
+                          minHeight: 220, // 🔥 FIXED MIN HEIGHT
+                        ),
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.vertical(
+                            top: Radius.circular(20),
+                            bottom: Radius.circular(20),
+                          ),
+                        ),
+                        child: Column(
+                          // mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            /// TITLE
+                            Text(
+                              data['highlight_title'],
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                height: 1.3,
+                              ),
+                            ),
+
+                            /// DESCRIPTION
+                            Text(
+                              data['highlight_desc'],
+                              maxLines: 6,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                height: 1.7,
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      child: Column(
-                        // mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          /// TITLE
-                          Text(
-                            data['highlight_title'],
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              height: 1.3,
-                            ),
-                          ),
-
-                          /// DESCRIPTION
-                          Text(
-                            data['highlight_desc'],
-                            maxLines: 6,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              height: 1.7,
-                              color: Colors.black87,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

@@ -4,6 +4,7 @@ import 'package:stemxplore/gradient_background.dart';
 import 'package:stemxplore/pages/bookmarkpage.dart';
 import 'package:stemxplore/pages/homepage.dart';
 import 'package:stemxplore/pages/infopage.dart';
+import 'package:stemxplore/pages/settingspage.dart';
 import 'package:stemxplore/stemhighlight/stem_highlight.dart';
 import 'package:stemxplore/steminfo/steminfodetailpage.dart';
 //fucntion page imports
@@ -23,62 +24,70 @@ class Mainpage extends StatefulWidget {
 }
 
 class _MainpageState extends State<Mainpage> {
-  int navIndex = 0; // for bottom navigation index
-  int pageIndex = 0; // for all pages
+  int navIndex = 0;
+  int pageIndex = 0;
 
   Map? selectedHighlight;
   dynamic selectedStemInfo;
 
+  /// MAIN pages controlled by Bottom Nav
+  late final List<Widget> mainPages = [
+    Homepage(
+      onNavigate: onFeatureNavigate,
+      onHighlightTap: onHighlightSelected,
+    ),
+    const Bookmarkpage(),
+    const Infopage(),
+    const Settingspage(),
+  ];
+
+  /// ALL pages (including detail pages)
   List<Widget> get pages => [
     Homepage(
       onNavigate: onFeatureNavigate,
       onHighlightTap: onHighlightSelected,
-    ), //0
-    const Bookmarkpage(), //1
-    const Infopage(), //2
-    //function pages
-    Steminfopage(onSelect: onStemSelect), //3
-    const Learningmaterialpage(), //4
-    const Quizgamepage(), //5
-    const Careerpage(), //6
-    const Dailychallengepage(), //7
-    const Faqpage(), //8
-
-    if (selectedHighlight != null) //9
+    ), // 0 Home
+    const Bookmarkpage(), // 1 Bookmark
+    const Infopage(), // 2 Info
+    const Settingspage(), // 3 Settings
+    /// Feature pages
+    Steminfopage(onSelect: onStemSelect), // 4
+    const Learningmaterialpage(), // 5
+    const Quizgamepage(), // 6
+    const Careerpage(), // 7
+    const Dailychallengepage(), // 8
+    const Faqpage(), // 9
+    /// Detail pages
+    if (selectedHighlight != null)
       StemHighlight(data: selectedHighlight!)
     else
-      const SizedBox(),
+      const SizedBox(), // 10
 
-    selectedStemInfo != null
-        ? StemInfoDetailPage(stemInfo: selectedStemInfo)
-        : const SizedBox(), //10
+    if (selectedStemInfo != null)
+      StemInfoDetailPage(stemInfo: selectedStemInfo)
+    else
+      const SizedBox(), // 11
   ];
 
   void onFeatureNavigate(int index) {
     setState(() {
       pageIndex = index;
-      navIndex = 0;
-    });
-  }
-
-  //detail of stemhighlight
-  void onHighlightSelected(dynamic highlight) {
-    setState(() {
-      selectedHighlight = highlight;
-      pageIndex = pages.indexWhere(
-        (page) => page is StemHighlight,
-      ); // jump to StemHighlight page
       navIndex = 0; // stay on Home tab
     });
   }
 
-  //detail on steminfo
+  void onHighlightSelected(dynamic highlight) {
+    setState(() {
+      selectedHighlight = highlight;
+      pageIndex = 10;
+      navIndex = 0;
+    });
+  }
+
   void onStemSelect(dynamic stemInfo) {
     setState(() {
       selectedStemInfo = stemInfo;
-      pageIndex = pages.indexWhere(
-        (page) => page is StemInfoDetailPage,
-      ); // jump to detail page
+      pageIndex = 11;
       navIndex = 0;
     });
   }
@@ -86,50 +95,34 @@ class _MainpageState extends State<Mainpage> {
   @override
   Widget build(BuildContext context) {
     return GradientBackground(
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
-        child: Scaffold(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+
+        /// PAGE SWITCHING
+        body: IndexedStack(index: pageIndex, children: pages),
+
+        /// BOTTOM NAVIGATION
+        bottomNavigationBar: CurvedNavigationBar(
+          index: navIndex,
+          height: 60,
           backgroundColor: Colors.transparent,
+          color: Color.fromARGB(255, 52, 137, 55),
+          buttonBackgroundColor: const Color(0xFF3E5F44),
+          animationDuration: const Duration(milliseconds: 300),
 
-          ///SWITCH PAGE HERE
-          body: IndexedStack(index: pageIndex, children: pages),
+          items: const [
+            Icon(Icons.home, color: Colors.white),
+            Icon(Icons.bookmark, color: Colors.white),
+            Icon(Icons.info, color: Colors.white),
+            Icon(Icons.settings, color: Colors.white),
+          ],
 
-          /// Bottom Navigation Bar
-          bottomNavigationBar: CurvedNavigationBar(
-            index: navIndex,
-            height: 60,
-            backgroundColor: Colors.transparent, // IMPORTANT for gradient
-            color: const Color(0xFF93DA97),
-            buttonBackgroundColor: const Color(0xFF3E5F44),
-            animationDuration: const Duration(milliseconds: 300),
-            animationCurve: Curves.easeInOut,
-
-            items: const [
-              Icon(Icons.home, size: 24, color: Colors.white),
-              Icon(Icons.bookmark, size: 24, color: Colors.white),
-              Icon(Icons.info, size: 24, color: Colors.white),
-            ],
-
-            onTap: (index) {
-              setState(() {
-                navIndex = index;
-                switch (index) {
-                  case 0:
-                    pageIndex = 0; // Home
-                    break;
-                  case 1:
-                    pageIndex = 1; // Bookmark
-                    break;
-                  case 2:
-                    pageIndex = 2; // Settings
-                    break;
-                  case 3:
-                    pageIndex = 11; // Info page
-                    break;
-                }
-              });
-            },
-          ),
+          onTap: (index) {
+            setState(() {
+              navIndex = index;
+              pageIndex = index; // direct mapping
+            });
+          },
         ),
       ),
     );

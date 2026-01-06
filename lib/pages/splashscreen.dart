@@ -60,7 +60,7 @@ class _SplashpageState extends State<Splashpage>
                 onTap: _goNextPage,
                 child: ScaleTransition(
                   scale: _scaleAnimation,
-                  child: Image.asset('assets/images/logoicon2.png', width: 180),
+                  child: Image.asset('assets/images/logoicon4.png', width: 400),
                 ),
               ),
 

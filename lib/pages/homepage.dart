@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter_localization/flutter_localization.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -42,83 +43,101 @@ class _HomepageState extends State<Homepage> {
     }
   }
 
+  String _getTranslatedText(String key, bool isEnglish) {
+    final Map<String, Map<String, String>> localizedValues = {
+      'stemInfo': {'en': 'STEM Info', 'ms': 'Info STEM'},
+      'learning': {'en': 'Learning Material', 'ms': 'Bahan Pembelajaran'},
+      'quiz': {'en': 'Quiz Game', 'ms': 'Permainan Kuiz'},
+      'careers': {'en': 'STEM Careers', 'ms': 'Kerjaya STEM'},
+      'challenge': {'en': 'Daily Challenge', 'ms': 'Cabaran Harian'},
+      'faq': {'en': 'FAQ', 'ms': 'Soalan Lazim'},
+      'highlights': {'en': 'STEM Highlights:', 'ms': 'Sorotan STEM:'},
+      'readMore': {'en': 'Read more', 'ms': 'Baca lagi'},
+    };
+    return localizedValues[key]?[isEnglish ? 'en' : 'ms'] ?? key;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final FlutterLocalization localization = FlutterLocalization.instance;
+    final String currentLang = localization.currentLocale?.languageCode ?? 'en';
+    final bool isEnglish = currentLang == 'en';
+
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          //languange
-          IconButton(onPressed: () {}, icon: const Icon(Icons.language)),
-          // const SizedBox(height: 10),
+          SizedBox(height: 10),
+          _buildTopBar(isEnglish, localization),
 
           ///FEATURES GRID (UNCHANGED)
-          Container(
-            padding: EdgeInsets.fromLTRB(
-              10,
-              0,
-              10,
-              10,
-            ), // Padding around the grid(16),
+          GridView.count(
+            childAspectRatio: 1.15,
+            crossAxisCount: 2,
+            shrinkWrap: true,
+            mainAxisSpacing: 4, // vertical gap
+            crossAxisSpacing: 4, // horizontal gap
 
-            child: GridView.count(
-              crossAxisCount: 2,
-              shrinkWrap: true,
-              mainAxisSpacing: 4, // vertical gap
-              crossAxisSpacing: 4, // horizontal gap
+            physics: const NeverScrollableScrollPhysics(),
+            children: [
+              FeatureCard(
+                label: _getTranslatedText('stemInfo', isEnglish),
+                icon: Icons.science,
+                imagePath: 'assets/images/infostem2.png',
+                onTap: () => widget.onNavigate(4),
+              ),
+              FeatureCard(
+                label: _getTranslatedText('learning', isEnglish),
+                icon: Icons.menu_book,
+                imagePath: 'assets/images/learningmaterial2.png',
+                onTap: () => widget.onNavigate(5),
+              ),
+              FeatureCard(
+                label: _getTranslatedText('quiz', isEnglish),
+                icon: Icons.question_answer,
+                imagePath: 'assets/images/quizicon2.png',
 
-              physics: const NeverScrollableScrollPhysics(),
+                onTap: () => widget.onNavigate(6),
+              ),
+              FeatureCard(
+                label: _getTranslatedText('careers', isEnglish),
+                icon: Icons.work,
+                imagePath: 'assets/images/career2.png',
+
+                onTap: () => widget.onNavigate(7),
+              ),
+              FeatureCard(
+                label: _getTranslatedText('challenge', isEnglish),
+                icon: Icons.calendar_today,
+                imagePath: 'assets/images/dailychallengeicon2.png',
+
+                onTap: () => widget.onNavigate(8),
+              ),
+              FeatureCard(
+                label: _getTranslatedText('faq', isEnglish),
+                icon: Icons.help_center_outlined,
+                imagePath: 'assets/images/faqicon2.png',
+
+                onTap: () => widget.onNavigate(9),
+              ),
+            ],
+          ),
+          const Divider(thickness: 3, height: 20),
+          Padding(
+            padding: EdgeInsetsGeometry.fromLTRB(0, 0, 0, 0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                FeatureCard(
-                  imagePath: 'assets/images/infostem2.png',
-                  title: 'STEM Info',
-                  onTap: () => widget.onNavigate(3),
-                ),
-                FeatureCard(
-                  imagePath: 'assets/images/learningmaterial2.png',
-                  title: 'Learning Material',
-                  onTap: () => widget.onNavigate(4),
-                ),
-                FeatureCard(
-                  imagePath: 'assets/images/quizicon2.png',
-                  title: 'Quiz',
-                  onTap: () => widget.onNavigate(5),
-                ),
-                FeatureCard(
-                  imagePath: 'assets/images/career2.png',
-                  title: 'STEM Careers',
-                  onTap: () => widget.onNavigate(6),
-                ),
-                FeatureCard(
-                  imagePath: 'assets/images/dailychallengeicon2.png',
-                  title: 'Daily Challenge',
-                  onTap: () => widget.onNavigate(7),
-                ),
-                FeatureCard(
-                  imagePath: 'assets/images/faqicon2.png',
-                  title: 'FAQ',
-                  onTap: () => widget.onNavigate(8),
+                Text(
+                  _getTranslatedText('highlights', isEnglish),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
           ),
 
-          Stack(
-            children: [
-              const Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'STEM Highlights',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-              ),
-              //map
-              // Positioned(top: 0, right: 0, child: GestureDetector()),
-            ],
-          ),
-
-          SizedBox(height: 4),
+          const SizedBox(height: 12),
 
           ///STEM HIGHLIGHT CAROUSEL (DATABASE)
           highlights.isEmpty
@@ -189,35 +208,149 @@ class _HomepageState extends State<Homepage> {
       ),
     );
   }
+
+  Widget _buildTopBar(bool isEnglish, FlutterLocalization localization) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 18, 16, 0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // Left Side: STEMXplore F2 Logo
+          Row(
+            children: [
+              Container(
+                margin: const EdgeInsets.only(right: 8),
+                child: const Text(
+                  "STEMXplore ",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 22,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: const BoxDecoration(
+                  color: Color(0xFF3E5F44),
+                  shape: BoxShape.circle,
+                ),
+                child: const Text(
+                  "F3",
+                  style: TextStyle(
+                    color: Color.fromARGB(255, 255, 255, 255),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          // Right Side: Flag Toggle with Shadow (Matching Info Page)
+          GestureDetector(
+            onTap: () async {
+              final localization = FlutterLocalization.instance;
+
+              // Toggle language
+              final currentLang =
+                  localization.currentLocale?.languageCode ?? 'en';
+              final newLang = currentLang == 'en' ? 'ms' : 'en';
+
+              localization.translate(newLang);
+
+              setState(() {}); // rebuild UI
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white,
+                border: Border.all(color: Colors.black, width: 1),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 6,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: ClipOval(
+                child: Image.asset(
+                  key: ValueKey<bool>(isEnglish),
+                  isEnglish
+                      ? 'assets/flag/language ms_flag.png'
+                      : 'assets/flag/language us_flag.png',
+                  width: 36,
+                  height: 36,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class FeatureCard extends StatelessWidget {
-  final String imagePath;
-  final String title;
+  final String label;
+  final IconData icon;
   final VoidCallback onTap;
+  final String? imagePath;
 
   const FeatureCard({
     super.key,
-    required this.imagePath,
-    required this.title,
+    required this.label,
+    required this.icon,
     required this.onTap,
+    this.imagePath,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(imagePath, width: 120, height: 120),
-            const SizedBox(height: 5),
-            Text(title),
-          ],
-        ),
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        double availableHeight = constraints.maxHeight;
+        double imageSize = availableHeight * 0.60;
+        double fontSize = availableHeight * 0.15;
+
+        return Material(
+          color: const Color.fromARGB(255, 52, 137, 55),
+          borderRadius: BorderRadius.circular(16),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(16),
+            onTap: onTap,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (imagePath != null)
+                  Image.asset(
+                    imagePath!,
+                    width: imageSize,
+                    height: imageSize,
+                    fit: BoxFit.contain,
+                  )
+                else
+                  Icon(icon, size: imageSize, color: Colors.black87),
+
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Text(
+                    label,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: fontSize.clamp(12, 16),
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
