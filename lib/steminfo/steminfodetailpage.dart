@@ -2,7 +2,6 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localization/flutter_localization.dart';
 import 'package:stemxplore/gradient_background.dart';
-import 'package:stemxplore/ipaddress.dart';
 import 'package:video_player/video_player.dart';
 
 class StemInfoDetailPage extends StatefulWidget {
@@ -24,7 +23,12 @@ class _StemInfoDetailPageState extends State<StemInfoDetailPage> {
     final bool isEnglish = currentLang == 'en';
     return GradientBackground(
       child: Scaffold(
-        appBar: buildCustomAppBar(isEnglish, widget.stemInfo['info_title']),
+        appBar: buildCustomAppBar(
+          isEnglish,
+          isEnglish
+              ? (widget.stemInfo['info_title_en']?.toString() ?? '')
+              : (widget.stemInfo['info_title_ms']?.toString() ?? ''),
+        ),
         backgroundColor: Colors.transparent,
         extendBodyBehindAppBar: true,
         body: Stack(
@@ -32,6 +36,7 @@ class _StemInfoDetailPageState extends State<StemInfoDetailPage> {
             Center(
               child: SingleChildScrollView(
                 child: Container(
+                  margin: const EdgeInsets.fromLTRB(16, 100, 16, 16),
                   decoration: const BoxDecoration(
                     borderRadius: BorderRadius.all(Radius.circular(20)),
                     color: Color.fromRGBO(147, 218, 151, 1),
@@ -66,7 +71,13 @@ class _StemInfoDetailPageState extends State<StemInfoDetailPage> {
                               children: [
                                 Flexible(
                                   child: Text(
-                                    widget.stemInfo['info_title'],
+                                    isEnglish
+                                        ? (widget.stemInfo['info_title_en']
+                                                  ?.toString() ??
+                                              '')
+                                        : (widget.stemInfo['info_title_ms']
+                                                  ?.toString() ??
+                                              ''),
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(
@@ -83,13 +94,17 @@ class _StemInfoDetailPageState extends State<StemInfoDetailPage> {
                               ],
                             ),
 
-                            const SizedBox(height: 10),
-
                             /// DESCRIPTION
                             Text(
-                              widget.stemInfo['info_desc'],
-                              maxLines: 6,
-                              overflow: TextOverflow.ellipsis,
+                              isEnglish
+                                  ? (widget.stemInfo['info_desc_en']
+                                            ?.toString() ??
+                                        '')
+                                  : (widget.stemInfo['info_desc_ms']
+                                            ?.toString() ??
+                                        ''),
+
+                              overflow: TextOverflow.visible,
                               style: const TextStyle(
                                 fontSize: 16,
                                 height: 1.7,
@@ -131,6 +146,66 @@ class _StemInfoDetailPageState extends State<StemInfoDetailPage> {
     } else {
       return VideoWidget(url: mediaList.first);
     }
+  }
+
+  AppBar buildCustomAppBar(bool isEnglish, String title) {
+    return AppBar(
+      title: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            // Left Side: App title with F3 badge
+            Text(
+              title,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 22,
+                color: Colors.black,
+              ),
+            ),
+
+            // Right Side: Flag toggle (for display only now)
+            GestureDetector(
+              onTap: () {
+                final FlutterLocalization localization =
+                    FlutterLocalization.instance;
+                final String currentLang =
+                    localization.currentLocale?.languageCode ?? 'en';
+                final String nextLocale = currentLang == 'en' ? 'ms' : 'en';
+                localization.translate(nextLocale);
+                setState(() {}); // rebuild UI
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.black, width: 1),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 6,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: ClipOval(
+                  child: Image.asset(
+                    // The flag changes based on isEnglish
+                    isEnglish
+                        ? 'assets/flag/language ms_flag.png'
+                        : 'assets/flag/language us_flag.png',
+                    width: 36,
+                    height: 36,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      backgroundColor: Color.fromARGB(255, 52, 137, 55),
+    );
   }
 }
 
@@ -214,7 +289,7 @@ class _VideoWidgetState extends State<VideoWidget> {
                   alignment: Alignment.bottomLeft,
                   children: [
                     FittedBox(
-                      fit: BoxFit.cover,
+                      // fit: BoxFit.fill,
                       child: SizedBox(
                         width: controller.value.size.width,
                         height: controller.value.size.height,
@@ -245,61 +320,4 @@ class _VideoWidgetState extends State<VideoWidget> {
       ),
     );
   }
-}
-
-AppBar buildCustomAppBar(bool isEnglish, String title) {
-  return AppBar(
-    title: Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          // Left Side: App title with F3 badge
-          const SizedBox(width: 50),
-          Text(
-            title,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 22,
-              color: Colors.black,
-            ),
-          ),
-
-          // Right Side: Flag toggle (for display only now)
-          GestureDetector(
-            onTap: () {
-              // TODO: Implement language translation here
-              // Example: toggle isEnglish variable and call your translator later
-              // setState(() { isEnglish = !isEnglish; });
-            },
-            child: Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.black, width: 1),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    blurRadius: 6,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: ClipOval(
-                child: Image.asset(
-                  // The flag changes based on isEnglish
-                  isEnglish
-                      ? 'assets/flag/language ms_flag.png'
-                      : 'assets/flag/language us_flag.png',
-                  width: 36,
-                  height: 36,
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    ),
-    backgroundColor: Color.fromARGB(255, 52, 137, 55),
-  );
 }

@@ -322,7 +322,6 @@ class _DailychallengepageState extends State<Dailychallengepage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             // Left Side: App title with F3 badge
-            const SizedBox(width: 50),
             Text(
               title,
               style: TextStyle(

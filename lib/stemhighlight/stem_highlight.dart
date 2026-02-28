@@ -5,10 +5,15 @@ import 'package:stemxplore/gradient_background.dart';
 import 'package:stemxplore/steminfo/steminfodetailpage.dart';
 import 'package:video_player/video_player.dart';
 
-class StemHighlight extends StatelessWidget {
+class StemHighlight extends StatefulWidget {
   final Map data;
   const StemHighlight({super.key, required this.data});
 
+  @override
+  State<StemHighlight> createState() => _StemHighlightState();
+}
+
+class _StemHighlightState extends State<StemHighlight> {
   @override
   Widget build(BuildContext context) {
     final FlutterLocalization localization = FlutterLocalization.instance;
@@ -16,7 +21,12 @@ class StemHighlight extends StatelessWidget {
     final bool isEnglish = currentLang == 'en';
     return GradientBackground(
       child: Scaffold(
-        appBar: buildCustomAppBar(isEnglish, data['highlight_title']),
+        appBar: buildCustomAppBar(
+          isEnglish,
+          isEnglish
+              ? (widget.data['highlight_title_en']?.toString() ?? '')
+              : (widget.data['highlight_title_ms']?.toString() ?? ''),
+        ),
         body: Stack(
           children: [
             Center(
@@ -52,7 +62,13 @@ class StemHighlight extends StatelessWidget {
                           children: [
                             /// TITLE
                             Text(
-                              data['highlight_title'],
+                              isEnglish
+                                  ? (widget.data['highlight_title_en']
+                                            ?.toString() ??
+                                        '')
+                                  : (widget.data['highlight_title_ms']
+                                            ?.toString() ??
+                                        ''),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
@@ -64,9 +80,15 @@ class StemHighlight extends StatelessWidget {
 
                             /// DESCRIPTION
                             Text(
-                              data['highlight_desc'],
-                              maxLines: 6,
-                              overflow: TextOverflow.ellipsis,
+                              isEnglish
+                                  ? (widget.data['highlight_desc_en']
+                                            ?.toString() ??
+                                        '')
+                                  : (widget.data['highlight_desc_ms']
+                                            ?.toString() ??
+                                        ''),
+
+                              overflow: TextOverflow.visible,
                               style: const TextStyle(
                                 fontSize: 16,
                                 height: 1.7,
@@ -90,7 +112,7 @@ class StemHighlight extends StatelessWidget {
   }
 
   Widget _buildMedia() {
-    if (data['highlight_type'] == 'image') {
+    if (widget.data['highlight_type'] == 'image') {
       return CarouselSlider(
         options: CarouselOptions(
           height: 300,
@@ -100,11 +122,72 @@ class StemHighlight extends StatelessWidget {
           enableInfiniteScroll: false,
           autoPlayAnimationDuration: const Duration(milliseconds: 800),
         ),
-        items: data['media'].map<Widget>((img) => _imageItem(img)).toList(),
+        items: widget.data['media']
+            .map<Widget>((img) => _imageItem(img))
+            .toList(),
       );
     } else {
-      return VideoWidget(url: data['media'][0]);
+      return VideoWidget(url: widget.data['media'][0]);
     }
+  }
+
+  AppBar buildCustomAppBar(bool isEnglish, String title) {
+    return AppBar(
+      title: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 22,
+                color: Colors.black,
+              ),
+            ),
+
+            // Right Side: Flag toggle (for display only now)
+            GestureDetector(
+              onTap: () {
+                final FlutterLocalization localization =
+                    FlutterLocalization.instance;
+                final String currentLang =
+                    localization.currentLocale?.languageCode ?? 'en';
+                final String nextLocale = currentLang == 'en' ? 'ms' : 'en';
+                localization.translate(nextLocale);
+                setState(() {}); // rebuild UI
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.black, width: 1),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 6,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: ClipOval(
+                  child: Image.asset(
+                    // The flag changes based on isEnglish
+                    isEnglish
+                        ? 'assets/flag/language ms_flag.png'
+                        : 'assets/flag/language us_flag.png',
+                    width: 36,
+                    height: 36,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      backgroundColor: Color.fromARGB(255, 52, 137, 55),
+    );
   }
 }
 

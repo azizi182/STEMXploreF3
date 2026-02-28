@@ -47,9 +47,9 @@ class _HomepageState extends State<Homepage> {
     final Map<String, Map<String, String>> localizedValues = {
       'stemInfo': {'en': 'STEM Info', 'ms': 'Info STEM'},
       'learning': {'en': 'Learning Material', 'ms': 'Bahan Pembelajaran'},
-      'quiz': {'en': 'Quiz Game', 'ms': 'Permainan Kuiz'},
+      'quiz': {'en': 'Quiz', 'ms': 'Kuiz'},
       'careers': {'en': 'STEM Careers', 'ms': 'Kerjaya STEM'},
-      'challenge': {'en': 'Daily Challenge', 'ms': 'Cabaran Harian'},
+      'challenge': {'en': 'Daily Info', 'ms': 'Info Harian'},
       'faq': {'en': 'FAQ', 'ms': 'Soalan Lazim'},
       'highlights': {'en': 'STEM Highlights:', 'ms': 'Sorotan STEM:'},
       'readMore': {'en': 'Read more', 'ms': 'Baca lagi'},
@@ -71,13 +71,12 @@ class _HomepageState extends State<Homepage> {
           SizedBox(height: 10),
           _buildTopBar(isEnglish, localization),
 
-          ///FEATURES GRID (UNCHANGED)
           GridView.count(
             childAspectRatio: 1.15,
             crossAxisCount: 2,
             shrinkWrap: true,
-            mainAxisSpacing: 4, // vertical gap
-            crossAxisSpacing: 4, // horizontal gap
+            mainAxisSpacing: 10, // vertical gap
+            crossAxisSpacing: 10, // horizontal gap
 
             physics: const NeverScrollableScrollPhysics(),
             children: [
@@ -168,7 +167,9 @@ class _HomepageState extends State<Homepage> {
                               bottom: 20,
                               left: 20,
                               child: Text(
-                                item['highlight_title'],
+                                isEnglish
+                                    ? item['highlight_title_en']
+                                    : item['highlight_title_ms'],
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 20,
@@ -218,29 +219,37 @@ class _HomepageState extends State<Homepage> {
           // Left Side: STEMXplore F2 Logo
           Row(
             children: [
-              Container(
-                margin: const EdgeInsets.only(right: 8),
-                child: const Text(
-                  "STEMXplore ",
+              RichText(
+                text: const TextSpan(
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 22,
                     color: Colors.black,
                   ),
+                  children: [
+                    TextSpan(text: "STEM"),
+                    TextSpan(text: "X", style: TextStyle(fontSize: 30)),
+                    TextSpan(text: "plore "),
+                  ],
                 ),
               ),
               Container(
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(6),
                 decoration: const BoxDecoration(
-                  color: Color(0xFF3E5F44),
+                  color: Color.fromARGB(255, 52, 137, 55),
                   shape: BoxShape.circle,
                 ),
-                child: const Text(
-                  "F3",
-                  style: TextStyle(
-                    color: Color.fromARGB(255, 255, 255, 255),
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
+                child: RichText(
+                  text: const TextSpan(
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                      fontSize: 16,
+                    ),
+                    children: [
+                      TextSpan(text: "F", style: TextStyle(fontSize: 22)),
+                      TextSpan(text: "3", style: TextStyle(fontSize: 30)),
+                    ],
                   ),
                 ),
               ),
@@ -340,7 +349,7 @@ class FeatureCard extends StatelessWidget {
                     label,
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: fontSize.clamp(12, 16),
+                      fontSize: fontSize.clamp(12, 20),
                       fontWeight: FontWeight.bold,
                       color: Colors.black87,
                     ),

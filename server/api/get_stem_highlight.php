@@ -5,7 +5,13 @@ include 'dbconnect.php';
 $base_url = "http://".$_SERVER['HTTP_HOST']."/stemxplore/";
 
 $query = "
-SELECT h.highlight_id, h.highlight_title, h.highlight_desc, h.highlight_type,
+SELECT 
+h.highlight_id, 
+h.highlight_title_en,
+h.highlight_title_ms, 
+h.highlight_desc_en, 
+h.highlight_desc_ms,
+h.highlight_type,
 GROUP_CONCAT(m.media_url) AS media
 FROM stem_highlight h
 LEFT JOIN stem_highlight_media m ON h.highlight_id = m.highlight_id

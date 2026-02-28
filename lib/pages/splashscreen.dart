@@ -72,7 +72,29 @@ class _SplashpageState extends State<Splashpage>
                 textAlign: TextAlign.center,
               ),
 
-              const SizedBox(height: 30),
+              const SizedBox(height: 60),
+
+              const Positioned(
+                left: 0,
+                right: 0,
+                bottom: 35,
+                child: Icon(Icons.touch_app, size: 40, color: Colors.black45),
+              ),
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 15,
+                child: Text(
+                  'Touch to start',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.black54,
+                    fontStyle: FontStyle.italic,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
 
               /// Hint text
             ],

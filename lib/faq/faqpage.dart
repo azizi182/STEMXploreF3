@@ -85,7 +85,10 @@ class _FaqpageState extends State<Faqpage> {
                             children: [
                               Expanded(
                                 child: Text(
-                                  faq['faq_question']!,
+                                  isEnglish
+                                      ? faq['faq_question_en']!
+                                      : faq['faq_question_ms']!,
+
                                   style: const TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
@@ -118,7 +121,9 @@ class _FaqpageState extends State<Faqpage> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
-                            faq['faq_answer']!,
+                            isEnglish
+                                ? faq['faq_answer_en']!
+                                : faq['faq_answer_ms']!,
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w400,
@@ -146,8 +151,7 @@ class _FaqpageState extends State<Faqpage> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // Left Side: App title with F3 badge
-            const SizedBox(width: 50),
+            
             Text(
               "FAQ",
               style: TextStyle(
@@ -160,9 +164,13 @@ class _FaqpageState extends State<Faqpage> {
             // Right Side: Flag toggle (for display only now)
             GestureDetector(
               onTap: () {
-                // TODO: Implement language translation here
-                // Example: toggle isEnglish variable and call your translator later
-                // setState(() { isEnglish = !isEnglish; });
+                final FlutterLocalization localization =
+                    FlutterLocalization.instance;
+                final String currentLang =
+                    localization.currentLocale?.languageCode ?? 'en';
+                final String nextLocale = currentLang == 'en' ? 'ms' : 'en';
+                localization.translate(nextLocale);
+                setState(() {}); // rebuild UI
               },
               child: Container(
                 decoration: BoxDecoration(

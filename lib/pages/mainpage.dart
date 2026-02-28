@@ -14,7 +14,6 @@ import 'package:stemxplore/dailychallenge/dailychallengepage.dart';
 import 'package:stemxplore/faq/faqpage.dart';
 import 'package:stemxplore/learningmaterial/learningmaterialpage.dart';
 import 'package:stemxplore/quizgame/quizgamepage.dart';
-import 'package:stemxplore/stemhighlight/stem_highlight.dart';
 
 class Mainpage extends StatefulWidget {
   const Mainpage({super.key});
@@ -107,7 +106,7 @@ class _MainpageState extends State<Mainpage> {
           height: 60,
           backgroundColor: Colors.transparent,
           color: Color.fromARGB(255, 52, 137, 55),
-          buttonBackgroundColor: const Color(0xFF3E5F44),
+          buttonBackgroundColor: const Color.fromARGB(255, 52, 137, 55),
           animationDuration: const Duration(milliseconds: 300),
 
           items: const [

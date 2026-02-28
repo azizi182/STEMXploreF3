@@ -1,3 +1,3 @@
 class ipaddress {
-  static const String baseUrl = "http://10.113.163.226/stemxplore/";
+  static const String baseUrl = "http://192.168.0.196/stemxplore/";
 }

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localization/flutter_localization.dart';
 import 'package:stemxplore/l10n/languages.dart';
 import 'package:stemxplore/pages/splashscreen.dart';
-import 'package:stemxplore/theme/app_color.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

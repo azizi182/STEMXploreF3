@@ -1,11 +1,12 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localization/flutter_localization.dart';
 import 'package:stemxplore/gradient_background.dart';
 import 'package:http/http.dart' as http;
 import 'package:stemxplore/ipaddress.dart';
-import 'package:stemxplore/steminfo/steminfodetailpage.dart';
 import 'dart:convert';
-import 'package:video_player/video_player.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
 
 class Steminfopage extends StatefulWidget {
   final Function(dynamic) onSelect;
@@ -62,6 +63,21 @@ class _SteminfopageState extends State<Steminfopage> {
     return localizedValues[key]?[isEnglish ? 'en' : 'ms'] ?? key;
   }
 
+  //thumbnail generation for video
+  Future<Uint8List?> _generateVideoThumbnail(String videoUrl) async {
+    try {
+      return await VideoThumbnail.thumbnailData(
+        video: videoUrl,
+        imageFormat: ImageFormat.JPEG,
+        maxHeight: 260,
+        quality: 75,
+      );
+    } catch (e) {
+      print("Thumbnail error: $e");
+      return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final FlutterLocalization localization = FlutterLocalization.instance;
@@ -76,100 +92,140 @@ class _SteminfopageState extends State<Steminfopage> {
         //content
         body: isLoading
             ? const Center(child: CircularProgressIndicator())
-            : ListView.separated(
-                padding: const EdgeInsets.all(16),
-                itemCount: stemInfoList.length,
-                separatorBuilder: (context, index) => SizedBox(height: 16),
-                itemBuilder: (context, index) {
-                  final item = stemInfoList[index];
-                  final List mediaList = item['media'];
-                  final String fileUrl = mediaList.isNotEmpty
-                      ? mediaList[0]
-                      : '';
+            : SafeArea(
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: ListView.builder(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        itemCount: stemInfoList.length,
+                        itemBuilder: (context, index) {
+                          final item = stemInfoList[index];
+                          final List mediaList = item['media'];
+                          final String fileUrl = mediaList.isNotEmpty
+                              ? mediaList[0]
+                              : '';
 
-                  return GestureDetector(
-                    onTap: () {
-                      widget.onSelect(item);
-                    },
-                    child: Card(
-                      elevation: 4,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            padding: EdgeInsets.fromLTRB(10, 24, 10, 20),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(20),
-                              child: Container(
-                                width: double.infinity,
-                                height: 260,
-                                color: Colors.grey.shade200,
-                                child: item['info_type'] == 'video'
-                                    ? Stack(
-                                        alignment: Alignment.center,
-                                        children: [
-                                          Image.network(
-                                            fileUrl.replaceAll(
-                                              '.mp4',
-                                              '.jpg',
-                                            ), // optional thumbnail
-                                            width: double.infinity,
-                                            height: 260,
-                                            fit: BoxFit.cover,
-                                            errorBuilder:
-                                                (context, error, stackTrace) {
-                                                  return Container(
-                                                    color: Colors.black12,
-                                                    width: double.infinity,
-                                                    height: 260,
-                                                  );
-                                                },
+                          return GestureDetector(
+                            onTap: () {
+                              widget.onSelect(item);
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.only(bottom: 16),
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(24),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.35),
+                                    blurRadius: 15,
+                                    offset: const Offset(0, 6),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  /// TITLE ROW
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          isEnglish
+                                              ? item['info_title_en']
+                                              : item['info_title_ms'],
+                                          style: const TextStyle(
+                                            fontSize: 17,
+                                            fontWeight: FontWeight.bold,
                                           ),
-                                          const Icon(
-                                            Icons.play_circle_fill,
-                                            color: Colors.white,
-                                            size: 64,
-                                          ),
-                                        ],
-                                      )
-                                    : Image.network(
-                                        fileUrl,
-                                        width: double.infinity,
-                                        height: 260,
-                                        fit: BoxFit.cover,
-                                        errorBuilder:
-                                            (context, error, stackTrace) {
-                                              return Container(
-                                                height: 260,
-                                                color: Colors.grey[300],
-                                                child: const Center(
-                                                  child: Icon(
-                                                    Icons.image_not_supported,
-                                                  ),
-                                                ),
-                                              );
-                                            },
+                                        ),
                                       ),
+                                      Text(
+                                        isEnglish ? 'Read more' : 'Baca lagi',
+                                        style: const TextStyle(
+                                          color: Colors.redAccent,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+
+                                  const SizedBox(height: 10),
+
+                                  /// MEDIA PREVIEW (SAME LOGIC AS YOUR OLD CODE)
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(15),
+                                    child: Container(
+                                      width: double.infinity,
+                                      height: 115,
+                                      color: Colors.grey.shade200,
+                                      child: item['info_type'] == 'video'
+                                          ? Stack(
+                                              alignment: Alignment.center,
+                                              children: [
+                                                FutureBuilder<Uint8List?>(
+                                                  future:
+                                                      _generateVideoThumbnail(
+                                                        fileUrl,
+                                                      ),
+                                                  builder: (context, snapshot) {
+                                                    if (!snapshot.hasData) {
+                                                      return Container(
+                                                        color: Colors.black12,
+                                                      );
+                                                    }
+
+                                                    return Image.memory(
+                                                      snapshot.data!,
+                                                      fit: BoxFit.cover,
+                                                      width: double.infinity,
+                                                      height: 115,
+                                                    );
+                                                  },
+                                                ),
+                                                const Icon(
+                                                  Icons.play_circle_fill,
+                                                  color: Colors.white,
+                                                  size: 40,
+                                                ),
+                                              ],
+                                            )
+                                          : Image.network(
+                                              fileUrl,
+                                              fit: BoxFit.cover,
+                                              width: double.infinity,
+                                              height: 115,
+                                              errorBuilder:
+                                                  (context, error, stackTrace) {
+                                                    return Container(
+                                                      color: Colors.grey[300],
+                                                      child: const Center(
+                                                        child: Icon(
+                                                          Icons
+                                                              .image_not_supported,
+                                                        ),
+                                                      ),
+                                                    );
+                                                  },
+                                            ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                          ),
-                          Center(
-                            child: Text(
-                              item['info_title'],
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
+                          );
+                        },
                       ),
                     ),
-                  );
-                },
+                  ],
+                ),
               ),
       ),
     );
@@ -183,9 +239,9 @@ class _SteminfopageState extends State<Steminfopage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             // Left Side: App title with F3 badge
-            const SizedBox(width: 50),
             Text(
-              "STEM Info",
+              isEnglish ? "STEM Info" : 'Info STEM',
+
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 22,
@@ -196,9 +252,17 @@ class _SteminfopageState extends State<Steminfopage> {
             // Right Side: Flag toggle (for display only now)
             GestureDetector(
               onTap: () {
-                // TODO: Implement language translation here
-                // Example: toggle isEnglish variable and call your translator later
-                // setState(() { isEnglish = !isEnglish; });
+                final FlutterLocalization localization =
+                    FlutterLocalization.instance;
+
+                final String currentLang =
+                    localization.currentLocale?.languageCode ?? 'en';
+
+                final String nextLocale = currentLang == 'en' ? 'ms' : 'en';
+
+                localization.translate(nextLocale);
+
+                setState(() {}); // rebuild UI
               },
               child: Container(
                 decoration: BoxDecoration(
