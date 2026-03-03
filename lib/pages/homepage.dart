@@ -3,9 +3,9 @@ import 'package:flutter_localization/flutter_localization.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:provider/provider.dart';
 import 'package:stemxplore/ipaddress.dart';
-
-import 'package:stemxplore/stemhighlight/stem_highlight.dart';
+import 'package:stemxplore/theme_provider.dart';
 
 class Homepage extends StatefulWidget {
   final Function(int) onNavigate;
@@ -59,6 +59,10 @@ class _HomepageState extends State<Homepage> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDark = themeProvider.isDarkMode;
+    final theme = Theme.of(context);
+
     final FlutterLocalization localization = FlutterLocalization.instance;
     final String currentLang = localization.currentLocale?.languageCode ?? 'en';
     final bool isEnglish = currentLang == 'en';
@@ -68,77 +72,72 @@ class _HomepageState extends State<Homepage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: 10),
-          _buildTopBar(isEnglish, localization),
+          const SizedBox(height: 10),
+          _buildTopBar(isEnglish, localization, theme, isDark),
 
           GridView.count(
             childAspectRatio: 1.15,
             crossAxisCount: 2,
             shrinkWrap: true,
-            mainAxisSpacing: 10, // vertical gap
-            crossAxisSpacing: 10, // horizontal gap
-
+            mainAxisSpacing: 10,
+            crossAxisSpacing: 10,
             physics: const NeverScrollableScrollPhysics(),
             children: [
               FeatureCard(
                 label: _getTranslatedText('stemInfo', isEnglish),
                 icon: Icons.science,
                 imagePath: 'assets/images/infostem2.png',
+                backgroundColor: theme.colorScheme.primary,
                 onTap: () => widget.onNavigate(4),
               ),
               FeatureCard(
                 label: _getTranslatedText('learning', isEnglish),
                 icon: Icons.menu_book,
                 imagePath: 'assets/images/learningmaterial2.png',
+                backgroundColor: theme.colorScheme.primary,
                 onTap: () => widget.onNavigate(5),
               ),
               FeatureCard(
                 label: _getTranslatedText('quiz', isEnglish),
                 icon: Icons.question_answer,
                 imagePath: 'assets/images/quizicon2.png',
-
+                backgroundColor: theme.colorScheme.primary,
                 onTap: () => widget.onNavigate(6),
               ),
               FeatureCard(
                 label: _getTranslatedText('careers', isEnglish),
                 icon: Icons.work,
                 imagePath: 'assets/images/career2.png',
-
+                backgroundColor: theme.colorScheme.primary,
                 onTap: () => widget.onNavigate(7),
               ),
               FeatureCard(
                 label: _getTranslatedText('challenge', isEnglish),
                 icon: Icons.calendar_today,
                 imagePath: 'assets/images/dailychallengeicon2.png',
-
+                backgroundColor: theme.colorScheme.primary,
                 onTap: () => widget.onNavigate(8),
               ),
               FeatureCard(
                 label: _getTranslatedText('faq', isEnglish),
                 icon: Icons.help_center_outlined,
                 imagePath: 'assets/images/faqicon2.png',
-
+                backgroundColor: theme.colorScheme.primary,
                 onTap: () => widget.onNavigate(9),
               ),
             ],
           ),
           const Divider(thickness: 3, height: 20),
-          Padding(
-            padding: EdgeInsetsGeometry.fromLTRB(0, 0, 0, 0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  _getTranslatedText('highlights', isEnglish),
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-              ],
+          Text(
+            _getTranslatedText('highlights', isEnglish),
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
             ),
           ),
-
           const SizedBox(height: 12),
 
-          ///STEM HIGHLIGHT CAROUSEL (DATABASE)
+          /// STEM HIGHLIGHT CAROUSEL
           highlights.isEmpty
               ? const Center(child: CircularProgressIndicator())
               : CarouselSlider(
@@ -155,7 +154,9 @@ class _HomepageState extends State<Homepage> {
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
                                   colors: [
-                                    Colors.black.withOpacity(0.5),
+                                    isDark
+                                        ? Colors.black.withOpacity(0.6)
+                                        : Colors.black.withOpacity(0.5),
                                     Colors.transparent,
                                   ],
                                   begin: Alignment.bottomCenter,
@@ -170,11 +171,11 @@ class _HomepageState extends State<Homepage> {
                                 isEnglish
                                     ? item['highlight_title_en']
                                     : item['highlight_title_ms'],
-                                style: const TextStyle(
+                                style: theme.textTheme.titleMedium?.copyWith(
                                   color: Colors.white,
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
-                                  shadows: [
+                                  shadows: const [
                                     Shadow(
                                       color: Colors.black45,
                                       offset: Offset(1, 1),
@@ -210,23 +211,30 @@ class _HomepageState extends State<Homepage> {
     );
   }
 
-  Widget _buildTopBar(bool isEnglish, FlutterLocalization localization) {
+  Widget _buildTopBar(
+    bool isEnglish,
+    FlutterLocalization localization,
+    ThemeData theme,
+    bool isDark,
+  ) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 18, 16, 0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Left Side: STEMXplore F2 Logo
+          // Left Side: STEMXplore Logo
           Row(
             children: [
               RichText(
-                text: const TextSpan(
+                text: TextSpan(
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 22,
-                    color: Colors.black,
+                    color: theme.brightness == Brightness.dark
+                        ? Colors.white
+                        : Colors.black,
                   ),
-                  children: [
+                  children: const [
                     TextSpan(text: "STEM"),
                     TextSpan(text: "X", style: TextStyle(fontSize: 30)),
                     TextSpan(text: "plore "),
@@ -235,18 +243,20 @@ class _HomepageState extends State<Homepage> {
               ),
               Container(
                 padding: const EdgeInsets.all(6),
-                decoration: const BoxDecoration(
-                  color: Color.fromARGB(255, 52, 137, 55),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primary,
                   shape: BoxShape.circle,
                 ),
                 child: RichText(
-                  text: const TextSpan(
+                  text: TextSpan(
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                      color: theme.brightness == Brightness.dark
+                          ? Colors.white
+                          : Colors.black,
                       fontSize: 16,
                     ),
-                    children: [
+                    children: const [
                       TextSpan(text: "F", style: TextStyle(fontSize: 22)),
                       TextSpan(text: "3", style: TextStyle(fontSize: 30)),
                     ],
@@ -256,7 +266,7 @@ class _HomepageState extends State<Homepage> {
             ],
           ),
 
-          // Right Side: Flag Toggle with Shadow (Matching Info Page)
+          // Right Side: Flag Toggle
           GestureDetector(
             onTap: () async {
               final localization = FlutterLocalization.instance;
@@ -273,7 +283,9 @@ class _HomepageState extends State<Homepage> {
             child: Container(
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.white,
+                color: theme.brightness == Brightness.dark
+                    ? Colors.grey[800]
+                    : Colors.white,
                 border: Border.all(color: Colors.black, width: 1),
                 boxShadow: [
                   BoxShadow(
@@ -285,7 +297,6 @@ class _HomepageState extends State<Homepage> {
               ),
               child: ClipOval(
                 child: Image.asset(
-                  key: ValueKey<bool>(isEnglish),
                   isEnglish
                       ? 'assets/flag/language ms_flag.png'
                       : 'assets/flag/language us_flag.png',
@@ -307,6 +318,7 @@ class FeatureCard extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
   final String? imagePath;
+  final Color backgroundColor;
 
   const FeatureCard({
     super.key,
@@ -314,10 +326,12 @@ class FeatureCard extends StatelessWidget {
     required this.icon,
     required this.onTap,
     this.imagePath,
+    required this.backgroundColor,
   });
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return LayoutBuilder(
       builder: (context, constraints) {
         double availableHeight = constraints.maxHeight;
@@ -325,7 +339,7 @@ class FeatureCard extends StatelessWidget {
         double fontSize = availableHeight * 0.15;
 
         return Material(
-          color: const Color.fromARGB(255, 52, 137, 55),
+          color: backgroundColor,
           borderRadius: BorderRadius.circular(16),
           child: InkWell(
             borderRadius: BorderRadius.circular(16),
@@ -341,8 +355,13 @@ class FeatureCard extends StatelessWidget {
                     fit: BoxFit.contain,
                   )
                 else
-                  Icon(icon, size: imageSize, color: Colors.black87),
-
+                  Icon(
+                    icon,
+                    size: imageSize,
+                    color: theme.brightness == Brightness.dark
+                        ? Colors.white
+                        : Colors.black87,
+                  ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4),
                   child: Text(
@@ -351,7 +370,9 @@ class FeatureCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: fontSize.clamp(12, 20),
                       fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+                      color: theme.brightness == Brightness.dark
+                          ? Colors.white
+                          : Colors.black87,
                     ),
                   ),
                 ),

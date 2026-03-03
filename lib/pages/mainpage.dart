@@ -1,6 +1,7 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:stemxplore/gradient_background.dart';
+
+import 'package:stemxplore/learningmaterial/materialdetailpage.dart';
 import 'package:stemxplore/pages/bookmarkpage.dart';
 import 'package:stemxplore/pages/homepage.dart';
 import 'package:stemxplore/pages/infopage.dart';
@@ -14,6 +15,7 @@ import 'package:stemxplore/dailychallenge/dailychallengepage.dart';
 import 'package:stemxplore/faq/faqpage.dart';
 import 'package:stemxplore/learningmaterial/learningmaterialpage.dart';
 import 'package:stemxplore/quizgame/quizgamepage.dart';
+import 'package:stemxplore/theme_provider.dart';
 
 class Mainpage extends StatefulWidget {
   const Mainpage({super.key});
@@ -28,6 +30,7 @@ class _MainpageState extends State<Mainpage> {
 
   Map? selectedHighlight;
   dynamic selectedStemInfo;
+  dynamic selectedLearningMaterial;
 
   /// MAIN pages controlled by Bottom Nav
   late final List<Widget> mainPages = [
@@ -51,7 +54,7 @@ class _MainpageState extends State<Mainpage> {
     const Settingspage(), // 3 Settings
     /// Feature pages
     Steminfopage(onSelect: onStemSelect), // 4
-    const Learningmaterialpage(), // 5
+    Learningmaterialpage(onSelect: onLearningSelect), // 5
     const Quizgamepage(), // 6
     const Careerpage(), // 7
     const Dailychallengepage(), // 8
@@ -66,6 +69,11 @@ class _MainpageState extends State<Mainpage> {
       StemInfoDetailPage(stemInfo: selectedStemInfo)
     else
       const SizedBox(), // 11
+
+    if (selectedLearningMaterial != null)
+      Materialdetailpage(learningMaterial: selectedLearningMaterial)
+    else
+      const SizedBox(), // 12
   ];
 
   void onFeatureNavigate(int index) {
@@ -91,6 +99,14 @@ class _MainpageState extends State<Mainpage> {
     });
   }
 
+  void onLearningSelect(dynamic learningMaterial) {
+    setState(() {
+      selectedLearningMaterial = learningMaterial;
+      pageIndex = 12; // next available index
+      navIndex = 0;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return GradientBackground(
@@ -105,21 +121,19 @@ class _MainpageState extends State<Mainpage> {
           index: navIndex,
           height: 60,
           backgroundColor: Colors.transparent,
-          color: Color.fromARGB(255, 52, 137, 55),
-          buttonBackgroundColor: const Color.fromARGB(255, 52, 137, 55),
+          color: Theme.of(context).colorScheme.primary,
+          buttonBackgroundColor: Theme.of(context).colorScheme.primary,
           animationDuration: const Duration(milliseconds: 300),
-
           items: const [
             Icon(Icons.home, color: Colors.white),
             Icon(Icons.bookmark, color: Colors.white),
             Icon(Icons.info, color: Colors.white),
             Icon(Icons.settings, color: Colors.white),
           ],
-
           onTap: (index) {
             setState(() {
               navIndex = index;
-              pageIndex = index; // direct mapping
+              pageIndex = index;
             });
           },
         ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localization/flutter_localization.dart';
-import 'package:stemxplore/gradient_background.dart';
+import 'package:stemxplore/theme_provider.dart';
 
 class Quizgamepage extends StatefulWidget {
   const Quizgamepage({super.key});

@@ -3,7 +3,7 @@ import 'package:flutter_localization/flutter_localization.dart';
 import 'package:http/http.dart' as http;
 import 'package:stemxplore/ipaddress.dart';
 import 'package:flutter/material.dart';
-import 'package:stemxplore/gradient_background.dart';
+import 'package:stemxplore/theme_provider.dart';
 
 class Faqpage extends StatefulWidget {
   const Faqpage({super.key});
@@ -151,7 +151,6 @@ class _FaqpageState extends State<Faqpage> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            
             Text(
               "FAQ",
               style: TextStyle(

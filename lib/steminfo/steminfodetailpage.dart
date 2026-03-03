@@ -1,7 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localization/flutter_localization.dart';
-import 'package:stemxplore/gradient_background.dart';
+import 'package:stemxplore/theme_provider.dart';
 import 'package:video_player/video_player.dart';
 
 class StemInfoDetailPage extends StatefulWidget {
@@ -21,6 +21,11 @@ class _StemInfoDetailPageState extends State<StemInfoDetailPage> {
     final FlutterLocalization localization = FlutterLocalization.instance;
     final String currentLang = localization.currentLocale?.languageCode ?? 'en';
     final bool isEnglish = currentLang == 'en';
+    final String description = isEnglish
+        ? (widget.stemInfo['info_desc_en']?.toString() ?? '')
+        : (widget.stemInfo['info_desc_ms']?.toString() ?? '');
+    final bool hasDescription = description.trim().isNotEmpty;
+
     return GradientBackground(
       child: Scaffold(
         appBar: buildCustomAppBar(
@@ -35,6 +40,7 @@ class _StemInfoDetailPageState extends State<StemInfoDetailPage> {
           children: [
             Center(
               child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
                 child: Container(
                   margin: const EdgeInsets.fromLTRB(16, 100, 16, 16),
                   decoration: const BoxDecoration(
@@ -43,77 +49,28 @@ class _StemInfoDetailPageState extends State<StemInfoDetailPage> {
                   ),
                   child: Column(
                     children: [
-                      /// MEDIA CARD
-                      Container(
-                        margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                        decoration: BoxDecoration(
-                          color: Colors.white, // card color for media
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: _buildMedia(),
-                      ),
+                      /// MEDIA CARD (height changes if no description)
+                      _buildMedia(hasDescription),
 
-                      /// TITLE + DESCRIPTION CARD
-                      Container(
-                        margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                        padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
-                        decoration: BoxDecoration(
-                          color: Colors.white, // card background
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        constraints: const BoxConstraints(minHeight: 220),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            /// TITLE + BOOKMARK
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Flexible(
-                                  child: Text(
-                                    isEnglish
-                                        ? (widget.stemInfo['info_title_en']
-                                                  ?.toString() ??
-                                              '')
-                                        : (widget.stemInfo['info_title_ms']
-                                                  ?.toString() ??
-                                              ''),
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold,
-                                      height: 1.3,
-                                    ),
-                                  ),
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.bookmark),
-                                  onPressed: () {},
-                                ),
-                              ],
+                      /// SHOW DESCRIPTION ONLY IF EXISTS
+                      if (hasDescription)
+                        Container(
+                          margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                          padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          constraints: const BoxConstraints(minHeight: 220),
+                          child: Text(
+                            description,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              height: 1.7,
+                              color: Colors.black87,
                             ),
-
-                            /// DESCRIPTION
-                            Text(
-                              isEnglish
-                                  ? (widget.stemInfo['info_desc_en']
-                                            ?.toString() ??
-                                        '')
-                                  : (widget.stemInfo['info_desc_ms']
-                                            ?.toString() ??
-                                        ''),
-
-                              overflow: TextOverflow.visible,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                height: 1.7,
-                                color: Colors.black87,
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
-                      ),
                     ],
                   ),
                 ),
@@ -126,25 +83,30 @@ class _StemInfoDetailPageState extends State<StemInfoDetailPage> {
   }
 
   /// MEDIA BUILDER
-  Widget _buildMedia() {
+  Widget _buildMedia(bool hasDescription) {
     final List mediaList = widget.stemInfo['media'] is List
         ? widget.stemInfo['media']
         : [widget.stemInfo['media']];
+    final double mediaHeight = hasDescription
+        ? 300
+        : MediaQuery.of(context).size.height * 0.7;
 
     if (widget.stemInfo['info_type'] == 'image') {
       return CarouselSlider(
         options: CarouselOptions(
-          height: 300,
+          height: mediaHeight,
           viewportFraction: 1,
           autoPlay: true,
-          autoPlayCurve: Curves.fastOutSlowIn,
+          autoPlayCurve: Curves.easeInOut,
           enableInfiniteScroll: false,
           autoPlayAnimationDuration: const Duration(milliseconds: 800),
         ),
-        items: mediaList.map<Widget>((img) => _imageItem(img)).toList(),
+        items: mediaList.map<Widget>((img) {
+          return _imageItem(context, img, mediaHeight);
+        }).toList(),
       );
     } else {
-      return VideoWidget(url: mediaList.first);
+      return VideoWidget(url: mediaList.first, height: mediaHeight);
     }
   }
 
@@ -210,20 +172,23 @@ class _StemInfoDetailPageState extends State<StemInfoDetailPage> {
 }
 
 //image
-Widget _imageItem(String url) {
-  return Container(
-    padding: EdgeInsets.fromLTRB(10, 24, 10, 20),
-
-    child: ClipRRect(
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        width: double.infinity,
-        height: 260,
-        color: Colors.grey.shade200, // fallback background
+Widget _imageItem(BuildContext context, String url, double height) {
+  return GestureDetector(
+    onTap: () {
+      // Open full screen image
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => FullScreenImagePage(imageUrl: url)),
+      );
+    },
+    child: SizedBox(
+      width: double.infinity,
+      height: height,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
         child: Image.network(
           url,
-          fit: BoxFit.fill,
-          alignment: Alignment.center,
+          fit: BoxFit.cover,
           loadingBuilder: (context, child, loadingProgress) {
             if (loadingProgress == null) return child;
             return const Center(child: CircularProgressIndicator());
@@ -240,7 +205,14 @@ Widget _imageItem(String url) {
 // Video Widget (same as above)
 class VideoWidget extends StatefulWidget {
   final String url;
-  const VideoWidget({super.key, required this.url});
+  //final bool isLarge;
+  final double height;
+  const VideoWidget({
+    super.key,
+    required this.url,
+    //required this.isLarge,
+    required this.height,
+  });
 
   @override
   State<VideoWidget> createState() => _VideoWidgetState();
@@ -317,6 +289,55 @@ class _VideoWidgetState extends State<VideoWidget> {
                 )
               : const Center(child: CircularProgressIndicator()),
         ),
+      ),
+    );
+  }
+}
+
+class FullScreenImagePage extends StatelessWidget {
+  final String imageUrl;
+
+  const FullScreenImagePage({super.key, required this.imageUrl});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Stack(
+        children: [
+          Center(
+            child: InteractiveViewer(
+              maxScale: 5.0, // allow pinch zoom
+              child: Image.network(
+                imageUrl,
+                fit: BoxFit.contain,
+                loadingBuilder: (context, child, progress) {
+                  if (progress == null) return child;
+                  return const Center(child: CircularProgressIndicator());
+                },
+                errorBuilder: (context, error, stack) {
+                  return const Center(
+                    child: Icon(
+                      Icons.broken_image,
+                      size: 50,
+                      color: Colors.white,
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+          Positioned(
+            top: 40,
+            right: 20,
+            child: IconButton(
+              iconSize: 35,
+              color: Colors.white,
+              icon: const Icon(Icons.close),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ),
+        ],
       ),
     );
   }

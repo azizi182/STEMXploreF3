@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:stemxplore/gradient_background.dart';
+//import 'package:stemxplore/gradient_background.dart';
+import 'package:stemxplore/theme_provider.dart';
 
 class Careerpage extends StatefulWidget {
   const Careerpage({super.key});

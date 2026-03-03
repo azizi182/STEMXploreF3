@@ -2,9 +2,10 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_localization/flutter_localization.dart';
-import 'package:stemxplore/gradient_background.dart';
+//import 'package:stemxplore/gradient_background.dart';
 import 'package:http/http.dart' as http;
 import 'package:stemxplore/ipaddress.dart';
+import 'package:stemxplore/theme_provider.dart';
 import 'dart:convert';
 import 'package:video_thumbnail/video_thumbnail.dart';
 
@@ -83,6 +84,7 @@ class _SteminfopageState extends State<Steminfopage> {
     final FlutterLocalization localization = FlutterLocalization.instance;
     final String currentLang = localization.currentLocale?.languageCode ?? 'en';
     final bool isEnglish = currentLang == 'en';
+
     return GradientBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
@@ -232,6 +234,7 @@ class _SteminfopageState extends State<Steminfopage> {
   }
 
   AppBar buildCustomAppBar(bool isEnglish) {
+    final theme = Theme.of(context);
     return AppBar(
       title: Padding(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
@@ -245,7 +248,9 @@ class _SteminfopageState extends State<Steminfopage> {
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 22,
-                color: Colors.black,
+                color: theme.brightness == Brightness.dark
+                    ? Colors.white
+                    : Colors.black,
               ),
             ),
 
@@ -292,7 +297,7 @@ class _SteminfopageState extends State<Steminfopage> {
           ],
         ),
       ),
-      backgroundColor: Color.fromARGB(255, 52, 137, 55),
+      backgroundColor: theme.colorScheme.primary,
     );
   }
 }

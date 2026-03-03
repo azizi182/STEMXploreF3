@@ -1,212 +1,304 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:stemxplore/gradient_background.dart';
+import 'package:flutter_localization/flutter_localization.dart';
+import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
+import 'package:stemxplore/bookmarkmanager.dart';
+import 'package:stemxplore/ipaddress.dart';
+import 'package:video_player/video_player.dart';
+import 'package:stemxplore/theme_provider.dart';
 
-class Materialdetailpage extends StatefulWidget {
-  const Materialdetailpage({super.key});
+class Materialdetailpage extends StatelessWidget {
+  final Map learningMaterial;
 
-  @override
-  State<Materialdetailpage> createState() => _MaterialdetailpageState();
-}
-
-class _MaterialdetailpageState extends State<Materialdetailpage> {
-  bool _globalIsBookmarked = false;
-  bool _showPopup = false;
-  late bool _isBookmarked;
-
-  @override
-  void initState() {
-    super.initState();
-    _isBookmarked = _globalIsBookmarked;
-  }
-
-  void _handleBookmark() {
-    setState(() {
-      _isBookmarked = !_isBookmarked;
-      _globalIsBookmarked = _isBookmarked;
-      if (_isBookmarked) _showPopup = true;
-    });
-
-    if (_isBookmarked) {
-      Future.delayed(const Duration(seconds: 3), () {
-        if (mounted) setState(() => _showPopup = false);
-      });
-    }
-  }
+  const Materialdetailpage({super.key, required this.learningMaterial});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: GradientBackground(
-        child: SafeArea(
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Column(
-                children: [
-                  AppBar(
-                    title: const Text(
-                      'Science',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    backgroundColor: Colors.transparent,
-                    elevation: 0,
-                    centerTitle: true,
-                    automaticallyImplyLeading: false,
-                  ),
+    final FlutterLocalization localization = FlutterLocalization.instance;
+    final bool isEnglish =
+        (localization.currentLocale?.languageCode ?? 'en') == 'en';
 
-                  Expanded(
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Chapter and Bookmark Row
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 10,
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text(
-                                  "Chapter 3 - Nutrition",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                                GestureDetector(
-                                  onTap: _handleBookmark,
-                                  child: Icon(
-                                    _isBookmarked
-                                        ? Icons.bookmark
-                                        : Icons.bookmark_border,
-                                    size: 28,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+    final String title = isEnglish
+        ? (learningMaterial['learning_title_en']?.toString() ?? '')
+        : (learningMaterial['learning_title_ms']?.toString() ?? '');
 
-                          // Outer Card
-                          Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.all(20),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(40),
-                              border: Border.all(color: Colors.black, width: 1),
-                            ),
-                            child: Column(
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(15),
-                                  child: Image.asset(
-                                    'assets/images/Science.png',
-                                    height: 100,
-                                    width: double.infinity,
-                                    fit: BoxFit.contain,
-                                    errorBuilder:
-                                        (context, error, stackTrace) =>
-                                            Container(
-                                              height: 100,
-                                              color: Colors.purple.shade50,
-                                              child: const Center(
-                                                child: Text("SCIENCE FORM 2"),
-                                              ),
-                                            ),
-                                  ),
-                                ),
-                                const SizedBox(height: 20),
-
-                                //Nutrition Text Box
-                                Container(
-                                  width: double.infinity,
-                                  padding: const EdgeInsets.all(15),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFE8F4FD),
-                                    borderRadius: BorderRadius.circular(20),
-                                    border: Border.all(
-                                      color: Colors.grey.shade300,
-                                    ),
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      const Text(
-                                        'What is Nutrition',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 10),
-                                      const Text(
-                                        'Nutrition is the process by which living organisms take in food and use it to get energy, grow, repair the body, and stay healthy.',
-                                        style: TextStyle(
-                                          height: 1.4,
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(height: 20),
-
-                                Image.asset(
-                                  'assets/images/food_pyramid_image.webp',
-                                  height: 250,
-                                  fit: BoxFit.contain,
-                                  errorBuilder: (context, error, stackTrace) =>
-                                      const Icon(
-                                        Icons.restaurant,
-                                        size: 80,
-                                        color: Colors.orange,
-                                      ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 40),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-
-              if (_showPopup)
-                Positioned(
-                  top: MediaQuery.of(context).size.height * 0.45,
-                  child: _buildBookmarkPopup(),
-                ),
-            ],
+    return GradientBackground(
+      child: Scaffold(
+        appBar: _buildAppBar(context, isEnglish, title),
+        backgroundColor: Colors.transparent,
+        extendBodyBehindAppBar: true,
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(8, 100, 8, 20),
+          child: Column(
+            children: List.generate(learningMaterial['pages'].length, (index) {
+              final page = learningMaterial['pages'][index];
+              return _PageItem(page: page);
+            }),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildBookmarkPopup() {
+  AppBar _buildAppBar(BuildContext context, bool isEnglish, String title) {
+    return AppBar(
+      title: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Text(
+                title,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 22,
+                  color: Colors.black,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const SizedBox(width: 8),
+            GestureDetector(
+              onTap: () {
+                final localization = FlutterLocalization.instance;
+                final currentLang =
+                    localization.currentLocale?.languageCode ?? 'en';
+                final newLang = currentLang == 'en' ? 'ms' : 'en';
+                localization.translate(newLang);
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.black, width: 1),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 6,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: ClipOval(
+                  child: Image.asset(
+                    isEnglish
+                        ? 'assets/flag/language ms_flag.png'
+                        : 'assets/flag/language us_flag.png',
+                    width: 36,
+                    height: 36,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      backgroundColor: const Color.fromARGB(255, 52, 137, 55),
+    );
+  }
+}
+
+class _PageItem extends StatelessWidget {
+  final Map page;
+  const _PageItem({super.key, required this.page});
+
+  @override
+  Widget build(BuildContext context) {
+    final FlutterLocalization localization = FlutterLocalization.instance;
+    final bool isEnglish =
+        (localization.currentLocale?.languageCode ?? 'en') == 'en';
+    final pageId = page['page_id'];
+
+    // Listen to BookmarkManager for changes
+    final bookmarkManager = context.watch<BookmarkManager>();
+    final isBookmarked = bookmarkManager.isBookmarked(pageId);
+
+    final description = isEnglish
+        ? page['page_desc_en'] ?? ''
+        : page['page_desc_ms'] ?? '';
+
     return Container(
-      width: MediaQuery.of(context).size.width * 0.75,
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+      margin: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: Colors.black, width: 1),
-        boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 15)],
+        borderRadius: BorderRadius.circular(20),
       ),
-      child: const Text(
-        'You can continue reading at bookmark',
-        textAlign: TextAlign.center,
-        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          /// HEADER + BOOKMARK ICON
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  isEnglish ? page['page_title_en'] : page['page_title_ms'],
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              IconButton(
+                icon: Icon(
+                  isBookmarked ? Icons.bookmark : Icons.bookmark_border,
+                  color: Colors.green,
+                ),
+                onPressed: () async {
+                  final confirm = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Confirm Bookmark'),
+                      content: Text(
+                        isBookmarked
+                            ? 'Remove bookmark for this page?'
+                            : 'Bookmark this page?',
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: const Text('Cancel'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: const Text('Yes'),
+                        ),
+                      ],
+                    ),
+                  );
+
+                  if (confirm == true) {
+                    await bookmarkManager.toggleBookmark(pageId);
+
+                    // Update database
+                    try {
+                      await http.post(
+                        Uri.parse('${ipaddress.baseUrl}api/bookmark_page.php'),
+                        body: {
+                          'page_id': pageId,
+                          'bookmark': bookmarkManager.isBookmarked(pageId)
+                              ? 'yes'
+                              : 'no',
+                        },
+                      );
+                    } catch (e) {
+                      print('DB update error: $e');
+                    }
+                  }
+                },
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 10),
+
+          /// MEDIA
+          Column(
+            children: (page['media'] ?? []).map<Widget>((media) {
+              if (media['type'] == 'image') {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(15),
+                    child: Image.network(media['url'], fit: BoxFit.cover),
+                  ),
+                );
+              } else {
+                return VideoWidget(url: media['url'], isLarge: false);
+              }
+            }).toList(),
+          ),
+
+          const SizedBox(height: 10),
+
+          /// DESCRIPTION
+          Text(description, style: const TextStyle(fontSize: 16)),
+        ],
+      ),
+    );
+  }
+}
+
+/// Video Widget remains the same as before
+class VideoWidget extends StatefulWidget {
+  final String url;
+  final bool isLarge;
+  const VideoWidget({super.key, required this.url, required this.isLarge});
+
+  @override
+  State<VideoWidget> createState() => _VideoWidgetState();
+}
+
+class _VideoWidgetState extends State<VideoWidget> {
+  late VideoPlayerController controller;
+  bool isDisposed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = VideoPlayerController.networkUrl(Uri.parse(widget.url))
+      ..initialize().then((_) {
+        if (!isDisposed && mounted) setState(() {});
+      });
+    controller.setLooping(false);
+    controller.setVolume(1.0);
+    controller.addListener(() {
+      if (!isDisposed && mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    isDisposed = true;
+    controller.pause();
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(10, 24, 10, 20),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          width: double.infinity,
+          height: widget.isLarge ? 450 : 200,
+          color: Colors.grey.shade200,
+          child: controller.value.isInitialized
+              ? Stack(
+                  alignment: Alignment.bottomLeft,
+                  children: [
+                    FittedBox(
+                      child: SizedBox(
+                        width: controller.value.size.width,
+                        height: controller.value.size.height,
+                        child: VideoPlayer(controller),
+                      ),
+                    ),
+                    IconButton(
+                      iconSize: 30,
+                      color: Colors.white,
+                      icon: Icon(
+                        controller.value.isPlaying
+                            ? Icons.pause
+                            : Icons.play_arrow,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          controller.value.isPlaying
+                              ? controller.pause()
+                              : controller.play();
+                        });
+                      },
+                    ),
+                  ],
+                )
+              : const Center(child: CircularProgressIndicator()),
+        ),
       ),
     );
   }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:stemxplore/gradient_background.dart';
+import 'package:stemxplore/theme_provider.dart';
 import 'package:stemxplore/pages/mainpage.dart';
 
 class Splashpage extends StatefulWidget {
