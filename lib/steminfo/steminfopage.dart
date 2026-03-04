@@ -84,7 +84,7 @@ class _SteminfopageState extends State<Steminfopage> {
     final FlutterLocalization localization = FlutterLocalization.instance;
     final String currentLang = localization.currentLocale?.languageCode ?? 'en';
     final bool isEnglish = currentLang == 'en';
-
+    final theme = Theme.of(context);
     return GradientBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
@@ -144,6 +144,7 @@ class _SteminfopageState extends State<Steminfopage> {
                                               : item['info_title_ms'],
                                           style: const TextStyle(
                                             fontSize: 17,
+                                            color: Colors.black,
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
@@ -249,7 +250,7 @@ class _SteminfopageState extends State<Steminfopage> {
                 fontWeight: FontWeight.bold,
                 fontSize: 22,
                 color: theme.brightness == Brightness.dark
-                    ? Colors.white
+                    ? Colors.black
                     : Colors.black,
               ),
             ),
@@ -297,7 +298,9 @@ class _SteminfopageState extends State<Steminfopage> {
           ],
         ),
       ),
-      backgroundColor: theme.colorScheme.primary,
+      backgroundColor: theme.brightness == Brightness.dark
+          ? Color.fromRGBO(179, 204, 161, 1)
+          : Color.fromARGB(255, 52, 137, 55),
     );
   }
 }

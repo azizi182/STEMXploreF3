@@ -35,21 +35,21 @@ class _LearningmaterialpageState extends State<Learningmaterialpage> {
 
     if (subjectEn == "Mathematics" || subjectMs == "Matematik") {
       return isEnglish
-          ? "assets/images/math_cover_en.jpg"
-          : "assets/images/math_cover.jpg";
+          ? "assets/images/mt_cover_en.jpg"
+          : "assets/images/mt_cover.jpg";
     }
 
     if (subjectEn == "Fundamentals of Computer Science" ||
         subjectMs == "Asas Sains Komputer") {
       return isEnglish
-          ? "assets/images/ask_cover_en.jpg"
+          ? "assets/images/ask_cover.jpg"
           : "assets/images/ask_cover.jpg";
     }
 
     if (subjectEn == "Design And Technology" ||
         subjectMs == "Reka Bentuk Dan Teknologi") {
       return isEnglish
-          ? "assets/images/rbt_cover_en.jpg"
+          ? "assets/images/rbt_cover.jpg"
           : "assets/images/rbt_cover.jpg";
     }
 
@@ -102,6 +102,7 @@ class _LearningmaterialpageState extends State<Learningmaterialpage> {
     final FlutterLocalization localization = FlutterLocalization.instance;
     final String currentLang = localization.currentLocale?.languageCode ?? 'en';
     final bool isEnglish = currentLang == 'en';
+    final theme = Theme.of(context);
     // Filter the list based on selection
     final filteredMaterials =
         (selectedCategory == "All" || selectedCategory == "Semua")
@@ -203,6 +204,7 @@ class _LearningmaterialpageState extends State<Learningmaterialpage> {
     required String subject,
     required String coverImage,
   }) {
+    final theme = Theme.of(context);
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -261,6 +263,7 @@ class _LearningmaterialpageState extends State<Learningmaterialpage> {
   }
 
   Widget _buildCategoryTabs(bool isEnglish) {
+    final theme = Theme.of(context);
     final List<String> displaySubjects = isEnglish
         ? [
             "All",
@@ -319,6 +322,7 @@ class _LearningmaterialpageState extends State<Learningmaterialpage> {
   }
 
   AppBar buildCustomAppBar(bool isEnglish) {
+    final theme = Theme.of(context);
     return AppBar(
       title: Padding(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
@@ -410,7 +414,9 @@ class _LearningmaterialpageState extends State<Learningmaterialpage> {
           ],
         ),
       ),
-      backgroundColor: Color.fromARGB(255, 52, 137, 55),
+      backgroundColor: theme.brightness == Brightness.dark
+          ? Color.fromRGBO(179, 204, 161, 1)
+          : Color.fromARGB(255, 52, 137, 55),
     );
   }
 }

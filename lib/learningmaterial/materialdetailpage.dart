@@ -22,7 +22,7 @@ class Materialdetailpage extends StatelessWidget {
     final String title = isEnglish
         ? (learningMaterial['learning_title_en']?.toString() ?? '')
         : (learningMaterial['learning_title_ms']?.toString() ?? '');
-
+    final theme = Theme.of(context);
     return GradientBackground(
       child: Scaffold(
         appBar: _buildAppBar(context, isEnglish, title),
@@ -42,6 +42,7 @@ class Materialdetailpage extends StatelessWidget {
   }
 
   AppBar _buildAppBar(BuildContext context, bool isEnglish, String title) {
+    final theme = Theme.of(context);
     return AppBar(
       title: Padding(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
@@ -95,7 +96,9 @@ class Materialdetailpage extends StatelessWidget {
           ],
         ),
       ),
-      backgroundColor: const Color.fromARGB(255, 52, 137, 55),
+      backgroundColor: theme.brightness == Brightness.dark
+          ? Color.fromRGBO(179, 204, 161, 1)
+          : Color.fromARGB(255, 52, 137, 55),
     );
   }
 }
@@ -106,6 +109,7 @@ class _PageItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final FlutterLocalization localization = FlutterLocalization.instance;
     final bool isEnglish =
         (localization.currentLocale?.languageCode ?? 'en') == 'en';
@@ -137,7 +141,8 @@ class _PageItem extends StatelessWidget {
                 child: Text(
                   isEnglish ? page['page_title_en'] : page['page_title_ms'],
                   style: const TextStyle(
-                    fontSize: 20,
+                    color: Colors.black,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -215,7 +220,10 @@ class _PageItem extends StatelessWidget {
           const SizedBox(height: 10),
 
           /// DESCRIPTION
-          Text(description, style: const TextStyle(fontSize: 16)),
+          Text(
+            description,
+            style: const TextStyle(color: Colors.black, fontSize: 16),
+          ),
         ],
       ),
     );
@@ -260,6 +268,7 @@ class _VideoWidgetState extends State<VideoWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.fromLTRB(10, 24, 10, 20),
       child: ClipRRect(

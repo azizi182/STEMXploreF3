@@ -109,6 +109,7 @@ class _MainpageState extends State<Mainpage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return GradientBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
@@ -121,14 +122,36 @@ class _MainpageState extends State<Mainpage> {
           index: navIndex,
           height: 60,
           backgroundColor: Colors.transparent,
-          color: Theme.of(context).colorScheme.primary,
+          color: theme.brightness == Brightness.dark
+              ? Color.fromRGBO(179, 204, 161, 1)
+              : const Color.fromARGB(255, 52, 137, 55),
           buttonBackgroundColor: Theme.of(context).colorScheme.primary,
           animationDuration: const Duration(milliseconds: 300),
-          items: const [
-            Icon(Icons.home, color: Colors.white),
-            Icon(Icons.bookmark, color: Colors.white),
-            Icon(Icons.info, color: Colors.white),
-            Icon(Icons.settings, color: Colors.white),
+          items: [
+            Icon(
+              Icons.home,
+              color: theme.brightness == Brightness.dark
+                  ? Color.fromARGB(255, 52, 137, 55)
+                  : Color.fromRGBO(255, 255, 255, 1),
+            ),
+            Icon(
+              Icons.bookmark,
+              color: theme.brightness == Brightness.dark
+                  ? Color.fromARGB(255, 52, 137, 55)
+                  : Color.fromRGBO(255, 255, 255, 1),
+            ),
+            Icon(
+              Icons.info,
+              color: theme.brightness == Brightness.dark
+                  ? Color.fromARGB(255, 52, 137, 55)
+                  : Color.fromRGBO(255, 255, 255, 1),
+            ),
+            Icon(
+              Icons.settings,
+              color: theme.brightness == Brightness.dark
+                  ? Color.fromARGB(255, 52, 137, 55)
+                  : Color.fromRGBO(255, 255, 255, 1),
+            ),
           ],
           onTap: (index) {
             setState(() {

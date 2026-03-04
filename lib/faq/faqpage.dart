@@ -51,6 +51,7 @@ class _FaqpageState extends State<Faqpage> {
     final FlutterLocalization localization = FlutterLocalization.instance;
     final String currentLang = localization.currentLocale?.languageCode ?? 'en';
     final bool isEnglish = currentLang == 'en';
+    final theme = Theme.of(context);
     return GradientBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
@@ -90,6 +91,7 @@ class _FaqpageState extends State<Faqpage> {
                                       : faq['faq_question_ms']!,
 
                                   style: const TextStyle(
+                                    color: Colors.black,
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -125,6 +127,7 @@ class _FaqpageState extends State<Faqpage> {
                                 ? faq['faq_answer_en']!
                                 : faq['faq_answer_ms']!,
                             style: const TextStyle(
+                              color: Colors.black,
                               fontSize: 18,
                               fontWeight: FontWeight.w400,
                             ),
@@ -145,6 +148,7 @@ class _FaqpageState extends State<Faqpage> {
   }
 
   AppBar buildCustomAppBar(bool isEnglish) {
+    final theme = Theme.of(context);
     return AppBar(
       title: Padding(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
@@ -199,7 +203,9 @@ class _FaqpageState extends State<Faqpage> {
           ],
         ),
       ),
-      backgroundColor: Color.fromARGB(255, 52, 137, 55),
+      backgroundColor: theme.brightness == Brightness.dark
+          ? Color.fromRGBO(179, 204, 161, 1)
+          : Color.fromARGB(255, 52, 137, 55),
     );
   }
 }

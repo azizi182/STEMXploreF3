@@ -112,17 +112,22 @@ class _SettingspageState extends State<Settingspage> {
   AppBar buildCustomAppBar(bool isEnglish, BuildContext context) {
     final theme = Theme.of(context);
     return AppBar(
-      title: Text(
-        isEnglish ? "Settings" : 'Tetapan',
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 22,
-          color: theme.brightness == Brightness.dark
-              ? Colors.white
-              : Colors.black,
+      title: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+        child: Text(
+          isEnglish ? "Settings" : 'Tetapan',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 22,
+            color: theme.brightness == Brightness.dark
+                ? Colors.black
+                : Colors.black,
+          ),
         ),
       ),
-      backgroundColor: theme.colorScheme.primary,
+      backgroundColor: theme.brightness == Brightness.dark
+          ? Color.fromRGBO(179, 204, 161, 1)
+          : Color.fromARGB(255, 52, 137, 55),
       actions: [
         GestureDetector(
           onTap: () {

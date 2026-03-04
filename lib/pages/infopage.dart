@@ -17,7 +17,7 @@ class _InfopageState extends State<Infopage> {
   Widget build(BuildContext context) {
     final FlutterLocalization localization = FlutterLocalization.instance;
     final bool isEnglish = localization.currentLocale?.languageCode == 'en';
-
+    final theme = Theme.of(context);
     final String description = isEnglish
         ? 'STEMXplore F3 is a mobile learning application designed for Form 3 secondary school students to explore Science, Technology, Engineering, and Mathematics (STEM) in a more advanced and career-oriented way. The app provides interactive content, videos, quizzes, and hands-on learning activities to help students understand STEM concepts, apply them in real life, and start thinking about future career paths.'
         : ' STEMXplore F3 ialah aplikasi pembelajaran mudah alih yang direka untuk pelajar sekolah menengah Tingkatan 3 bagi meneroka Sains, Teknologi, Kejuruteraan dan Matematik (STEM) dengan cara yang lebih maju dan berorientasikan kerjaya. Aplikasi ini menyediakan kandungan interaktif, video, kuiz dan aktiviti pembelajaran secara langsung untuk membantu pelajar memahami konsep STEM, mengaplikasikannya dalam kehidupan sebenar dan mula memikirkan laluan kerjaya masa depan.';
@@ -40,13 +40,15 @@ class _InfopageState extends State<Infopage> {
                 ),
 
                 RichText(
-                  text: const TextSpan(
+                  text: TextSpan(
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 22,
-                      color: Colors.black,
+                      color: theme.brightness == Brightness.dark
+                          ? const Color.fromRGBO(179, 204, 161, 1)
+                          : const Color.fromARGB(255, 52, 137, 55),
                     ),
-                    children: [
+                    children: const [
                       TextSpan(text: "STEM"),
                       TextSpan(text: "X", style: TextStyle(fontSize: 30)),
                       TextSpan(text: "plore "),
@@ -164,6 +166,7 @@ class _InfopageState extends State<Infopage> {
   }
 
   AppBar buildCustomAppBar(bool isEnglish) {
+    final theme = Theme.of(context);
     return AppBar(
       title: Padding(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
@@ -224,7 +227,9 @@ class _InfopageState extends State<Infopage> {
           ],
         ),
       ),
-      backgroundColor: Color.fromARGB(255, 52, 137, 55),
+      backgroundColor: theme.brightness == Brightness.dark
+          ? Color.fromRGBO(179, 204, 161, 1)
+          : Color.fromARGB(255, 52, 137, 55),
     );
   }
 
@@ -258,6 +263,7 @@ class _InfopageState extends State<Infopage> {
                 Text(
                   title,
                   style: const TextStyle(
+                    color: Colors.black,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -265,7 +271,11 @@ class _InfopageState extends State<Infopage> {
                 const SizedBox(height: 8),
                 Text(
                   content,
-                  style: const TextStyle(fontSize: 14, height: 1.5),
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontSize: 14,
+                    height: 1.5,
+                  ),
                 ),
               ],
             ),
@@ -309,6 +319,7 @@ class _InfopageState extends State<Infopage> {
                   child: Text(
                     title,
                     style: const TextStyle(
+                      color: Colors.black,
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
@@ -317,7 +328,11 @@ class _InfopageState extends State<Infopage> {
                 AnimatedRotation(
                   turns: isPrivacyExpanded ? 0.5 : 0,
                   duration: const Duration(milliseconds: 200),
-                  child: const Icon(Icons.keyboard_arrow_down),
+                  child: Icon(
+                    Icons.keyboard_arrow_down,
+                    color: Colors.black,
+                    size: 24,
+                  ),
                 ),
               ],
             ),
@@ -328,7 +343,11 @@ class _InfopageState extends State<Infopage> {
               padding: const EdgeInsets.only(top: 12),
               child: Text(
                 content,
-                style: const TextStyle(fontSize: 14, height: 1.5),
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontSize: 14,
+                  height: 1.5,
+                ),
               ),
             ),
             crossFadeState: isPrivacyExpanded

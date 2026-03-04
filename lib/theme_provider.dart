@@ -53,9 +53,9 @@ class ThemeProvider with ChangeNotifier {
     brightness: Brightness.dark,
 
     colorScheme: ColorScheme.fromSeed(
-      seedColor: lightGreenBackground,
+      seedColor: primaryGreen,
       brightness: Brightness.dark,
-      primary: lightGreenBackground,
+      primary: primaryGreen,
       surface: darkSurface,
       onSurface: Colors.white,
     ),
@@ -99,7 +99,7 @@ class GradientBackground extends StatelessWidget {
           end: Alignment.bottomCenter,
           stops: const [0.57, 1.0],
           colors: isDark
-              ? [Colors.black54, Colors.black87]
+              ? [const Color.fromARGB(137, 38, 100, 2), Colors.black87]
               : [Color.fromARGB(255, 152, 206, 165), Colors.white],
         ),
       ),

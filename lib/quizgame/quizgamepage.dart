@@ -42,13 +42,20 @@ class _QuizgamepageState extends State<Quizgamepage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: GradientBackground(
-        child: SafeArea(
+    final FlutterLocalization localization = FlutterLocalization.instance;
+    final String currentLang = localization.currentLocale?.languageCode ?? 'en';
+    final bool isEnglish = currentLang == 'en';
+    final theme = Theme.of(context);
+
+    return GradientBackground(
+      child: Scaffold(
+        appBar: buildCustomAppBar(isEnglish, context),
+        backgroundColor: Colors.transparent,
+        body: SafeArea(
           child: Column(
             children: [
-              _buildAppBar(),
-              _buildCategoryScroll(),
+              SizedBox(height: 20),
+              _buildCategoryTabs(isEnglish),
               Expanded(
                 child: ListView(
                   padding: const EdgeInsets.all(16),
@@ -80,37 +87,87 @@ class _QuizgamepageState extends State<Quizgamepage> {
     );
   }
 
-  Widget _buildAppBar() {
-    final FlutterLocalization localization = FlutterLocalization.instance;
-    final bool isEnglish = localization.currentLocale?.languageCode == 'en';
-
+  AppBar buildCustomAppBar(bool isEnglish, BuildContext context) {
+    final theme = Theme.of(context);
     return AppBar(
-      title: Text(
-        isEnglish ? 'Quiz Game' : 'Permainan Kuiz',
-        style: const TextStyle(
-          color: Colors.black,
-          fontWeight: FontWeight.bold,
+      title: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+        child: Text(
+          isEnglish ? "Quiz Game" : 'Permainan Kuiz',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 22,
+            color: theme.brightness == Brightness.dark
+                ? Colors.black
+                : Colors.black,
+          ),
         ),
       ),
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      centerTitle: true,
-      automaticallyImplyLeading: false,
-      actions: [const SizedBox(width: 8)],
+      backgroundColor: theme.brightness == Brightness.dark
+          ? Color.fromRGBO(179, 204, 161, 1)
+          : Color.fromARGB(255, 52, 137, 55),
+      actions: [
+        GestureDetector(
+          onTap: () {
+            final FlutterLocalization localization =
+                FlutterLocalization.instance;
+            final String currentLang =
+                localization.currentLocale?.languageCode ?? 'en';
+            final String nextLocale = currentLang == 'en' ? 'ms' : 'en';
+            localization.translate(nextLocale);
+            setState(() {});
+          },
+          child: Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: ClipOval(
+              child: Image.asset(
+                isEnglish
+                    ? 'assets/flag/language ms_flag.png'
+                    : 'assets/flag/language us_flag.png',
+                width: 36,
+                height: 36,
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
-  Widget _buildCategoryScroll() {
+  Widget _buildCategoryTabs(bool isEnglish) {
+    final List<String> displaySubjects = isEnglish
+        ? [
+            "All",
+            "Science",
+            "Mathematics",
+            "Fundamentals of Computer Science",
+            "Design And Technology",
+          ]
+        : [
+            "Semua",
+            "Sains",
+            "Matematik",
+            "Asas Sains Komputer",
+            "Reka Bentuk Dan Teknologi",
+          ];
+
     return SizedBox(
       height: 50,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: categories.length,
+        itemCount: displaySubjects.length,
         itemBuilder: (context, index) {
-          bool isSelected = selectedCategory == categories[index];
+          final displayText = displaySubjects[index];
+          bool isSelected = selectedCategory == displayText;
+
           return GestureDetector(
-            onTap: () => setState(() => selectedCategory = categories[index]),
+            onTap: () {
+              setState(() {
+                selectedCategory = displayText;
+              });
+            },
             child: Container(
               margin: const EdgeInsets.only(right: 10),
               padding: const EdgeInsets.symmetric(horizontal: 25),
@@ -118,12 +175,12 @@ class _QuizgamepageState extends State<Quizgamepage> {
               decoration: BoxDecoration(
                 color: isSelected
                     ? Colors.white
-                    : Colors.white.withValues(alpha: 0.4),
+                    : Colors.white.withOpacity(0.4),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(color: Colors.black12),
               ),
               child: Text(
-                categories[index],
+                displayText,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: isSelected ? Colors.black : Colors.black54,

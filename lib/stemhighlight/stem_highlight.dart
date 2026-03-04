@@ -31,6 +31,7 @@ class _StemHighlightState extends State<StemHighlight> {
               ? (widget.data['highlight_title_en']?.toString() ?? '')
               : (widget.data['highlight_title_ms']?.toString() ?? ''),
         ),
+        backgroundColor: Colors.transparent,
         body: Stack(
           children: [
             Center(
@@ -112,12 +113,16 @@ class _StemHighlightState extends State<StemHighlight> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              title,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 22,
-                color: Colors.black,
+            Expanded(
+              child: Text(
+                title,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 22,
+                  color: Colors.black,
+                ),
+                maxLines: 1, // ✅ single line
+                overflow: TextOverflow.ellipsis,
               ),
             ),
 

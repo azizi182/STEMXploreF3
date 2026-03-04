@@ -122,6 +122,7 @@ class _DailychallengepageState extends State<Dailychallengepage> {
     final int dayIndex = DateTime.now().day % _challenges.length;
     final currentChallenge = _challenges[dayIndex];
     final String title = isEnglish ? 'Daily Challenge' : 'Cabaran Harian';
+    final theme = Theme.of(context);
     return GradientBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
@@ -170,6 +171,7 @@ class _DailychallengepageState extends State<Dailychallengepage> {
                                           : 'Fakta STEM Hari Ini – ${currentChallenge.titleMs}',
                                       textAlign: TextAlign.center,
                                       style: const TextStyle(
+                                        color: Colors.black,
                                         fontWeight: FontWeight.bold,
                                         fontSize: 18,
                                       ),
@@ -192,6 +194,7 @@ class _DailychallengepageState extends State<Dailychallengepage> {
                                             ? 'Did you know?'
                                             : 'Tahukah anda?',
                                         style: const TextStyle(
+                                          color: Colors.black87,
                                           fontWeight: FontWeight.bold,
                                           fontSize: 16,
                                         ),
@@ -204,6 +207,7 @@ class _DailychallengepageState extends State<Dailychallengepage> {
                                           : currentChallenge.factMs,
                                       textAlign: TextAlign.justify,
                                       style: const TextStyle(
+                                        color: Colors.black87,
                                         fontSize: 15,
                                         height: 1.4,
                                       ),
@@ -316,6 +320,7 @@ class _DailychallengepageState extends State<Dailychallengepage> {
     String title,
     FlutterLocalization localization,
   ) {
+    final theme = Theme.of(context);
     return AppBar(
       title: Padding(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
@@ -374,7 +379,9 @@ class _DailychallengepageState extends State<Dailychallengepage> {
           ],
         ),
       ),
-      backgroundColor: Color.fromARGB(255, 52, 137, 55),
+      backgroundColor: theme.brightness == Brightness.dark
+          ? Color.fromRGBO(179, 204, 161, 1)
+          : Color.fromARGB(255, 52, 137, 55),
     );
   }
 }

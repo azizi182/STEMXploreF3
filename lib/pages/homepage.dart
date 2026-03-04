@@ -87,42 +87,54 @@ class _HomepageState extends State<Homepage> {
                 label: _getTranslatedText('stemInfo', isEnglish),
                 icon: Icons.science,
                 imagePath: 'assets/images/infostem2.png',
-                backgroundColor: theme.colorScheme.primary,
+                backgroundColor: theme.brightness == Brightness.dark
+                    ? Color.fromRGBO(179, 204, 161, 1)
+                    : Color.fromARGB(255, 52, 137, 55),
                 onTap: () => widget.onNavigate(4),
               ),
               FeatureCard(
                 label: _getTranslatedText('learning', isEnglish),
                 icon: Icons.menu_book,
                 imagePath: 'assets/images/learningmaterial2.png',
-                backgroundColor: theme.colorScheme.primary,
+                backgroundColor: theme.brightness == Brightness.dark
+                    ? Color.fromRGBO(179, 204, 161, 1)
+                    : Color.fromARGB(255, 52, 137, 55),
                 onTap: () => widget.onNavigate(5),
               ),
               FeatureCard(
                 label: _getTranslatedText('quiz', isEnglish),
                 icon: Icons.question_answer,
                 imagePath: 'assets/images/quizicon2.png',
-                backgroundColor: theme.colorScheme.primary,
+                backgroundColor: theme.brightness == Brightness.dark
+                    ? Color.fromRGBO(179, 204, 161, 1)
+                    : Color.fromARGB(255, 52, 137, 55),
                 onTap: () => widget.onNavigate(6),
               ),
               FeatureCard(
                 label: _getTranslatedText('careers', isEnglish),
                 icon: Icons.work,
                 imagePath: 'assets/images/career2.png',
-                backgroundColor: theme.colorScheme.primary,
+                backgroundColor: theme.brightness == Brightness.dark
+                    ? Color.fromRGBO(179, 204, 161, 1)
+                    : Color.fromARGB(255, 52, 137, 55),
                 onTap: () => widget.onNavigate(7),
               ),
               FeatureCard(
                 label: _getTranslatedText('challenge', isEnglish),
                 icon: Icons.calendar_today,
                 imagePath: 'assets/images/dailychallengeicon2.png',
-                backgroundColor: theme.colorScheme.primary,
+                backgroundColor: theme.brightness == Brightness.dark
+                    ? Color.fromRGBO(179, 204, 161, 1)
+                    : Color.fromARGB(255, 52, 137, 55),
                 onTap: () => widget.onNavigate(8),
               ),
               FeatureCard(
                 label: _getTranslatedText('faq', isEnglish),
                 icon: Icons.help_center_outlined,
                 imagePath: 'assets/images/faqicon2.png',
-                backgroundColor: theme.colorScheme.primary,
+                backgroundColor: theme.brightness == Brightness.dark
+                    ? Color.fromRGBO(179, 204, 161, 1)
+                    : Color.fromARGB(255, 52, 137, 55),
                 onTap: () => widget.onNavigate(9),
               ),
             ],
@@ -231,7 +243,7 @@ class _HomepageState extends State<Homepage> {
                     fontWeight: FontWeight.bold,
                     fontSize: 22,
                     color: theme.brightness == Brightness.dark
-                        ? Colors.white
+                        ? const Color.fromRGBO(179, 204, 161, 1)
                         : Colors.black,
                   ),
                   children: const [
@@ -244,7 +256,9 @@ class _HomepageState extends State<Homepage> {
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.primary,
+                  color: theme.brightness == Brightness.dark
+                      ? Color.fromRGBO(179, 204, 161, 1)
+                      : Color.fromARGB(255, 52, 137, 55),
                   shape: BoxShape.circle,
                 ),
                 child: RichText(
@@ -252,7 +266,7 @@ class _HomepageState extends State<Homepage> {
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: theme.brightness == Brightness.dark
-                          ? Colors.white
+                          ? Color.fromARGB(255, 52, 137, 55)
                           : Colors.black,
                       fontSize: 16,
                     ),
@@ -359,7 +373,7 @@ class FeatureCard extends StatelessWidget {
                     icon,
                     size: imageSize,
                     color: theme.brightness == Brightness.dark
-                        ? Colors.white
+                        ? const Color.fromRGBO(255, 255, 255, 1)
                         : Colors.black87,
                   ),
                 Padding(
@@ -371,7 +385,7 @@ class FeatureCard extends StatelessWidget {
                       fontSize: fontSize.clamp(12, 20),
                       fontWeight: FontWeight.bold,
                       color: theme.brightness == Brightness.dark
-                          ? Colors.white
+                          ? Color.fromARGB(255, 52, 137, 55)
                           : Colors.black87,
                     ),
                   ),

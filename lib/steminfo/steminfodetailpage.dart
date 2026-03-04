@@ -25,7 +25,7 @@ class _StemInfoDetailPageState extends State<StemInfoDetailPage> {
         ? (widget.stemInfo['info_desc_en']?.toString() ?? '')
         : (widget.stemInfo['info_desc_ms']?.toString() ?? '');
     final bool hasDescription = description.trim().isNotEmpty;
-
+    final theme = Theme.of(context);
     return GradientBackground(
       child: Scaffold(
         appBar: buildCustomAppBar(
@@ -84,6 +84,7 @@ class _StemInfoDetailPageState extends State<StemInfoDetailPage> {
 
   /// MEDIA BUILDER
   Widget _buildMedia(bool hasDescription) {
+    final theme = Theme.of(context);
     final List mediaList = widget.stemInfo['media'] is List
         ? widget.stemInfo['media']
         : [widget.stemInfo['media']];
@@ -111,6 +112,7 @@ class _StemInfoDetailPageState extends State<StemInfoDetailPage> {
   }
 
   AppBar buildCustomAppBar(bool isEnglish, String title) {
+    final theme = Theme.of(context);
     return AppBar(
       title: Padding(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
@@ -118,12 +120,16 @@ class _StemInfoDetailPageState extends State<StemInfoDetailPage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             // Left Side: App title with F3 badge
-            Text(
-              title,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 22,
-                color: Colors.black,
+            Expanded(
+              child: Text(
+                title,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 22,
+                  color: Colors.black,
+                ),
+                maxLines: 1, // ✅ single line
+                overflow: TextOverflow.ellipsis,
               ),
             ),
 
@@ -166,7 +172,9 @@ class _StemInfoDetailPageState extends State<StemInfoDetailPage> {
           ],
         ),
       ),
-      backgroundColor: Color.fromARGB(255, 52, 137, 55),
+      backgroundColor: theme.brightness == Brightness.dark
+          ? Color.fromRGBO(179, 204, 161, 1)
+          : Color.fromARGB(255, 52, 137, 55),
     );
   }
 }
@@ -248,6 +256,7 @@ class _VideoWidgetState extends State<VideoWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.fromLTRB(10, 24, 10, 20),
       child: ClipRRect(
