@@ -125,7 +125,9 @@ class _MainpageState extends State<Mainpage> {
           color: theme.brightness == Brightness.dark
               ? Color.fromRGBO(179, 204, 161, 1)
               : const Color.fromARGB(255, 52, 137, 55),
-          buttonBackgroundColor: Theme.of(context).colorScheme.primary,
+          buttonBackgroundColor: theme.brightness == Brightness.dark
+              ? Color.fromRGBO(179, 204, 161, 1)
+              : const Color.fromARGB(255, 52, 137, 55),
           animationDuration: const Duration(milliseconds: 300),
           items: [
             Icon(

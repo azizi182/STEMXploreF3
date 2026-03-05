@@ -62,6 +62,7 @@ class _BookmarkpageState extends State<Bookmarkpage> {
     final FlutterLocalization localization = FlutterLocalization.instance;
     final bool isEnglish = localization.currentLocale?.languageCode == 'en';
     final theme = Theme.of(context);
+
     final filteredBookmarks =
         (selectedCategory == "All" || selectedCategory == "Semua")
         ? bookmarkedPages

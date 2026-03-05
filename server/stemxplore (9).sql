@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 04, 2026 at 05:55 PM
+-- Generation Time: Mar 05, 2026 at 09:35 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -43,7 +43,9 @@ INSERT INTO `learning_media` (`media_id`, `media_type`, `media_url`, `page_id`) 
 (2, 'image', 'assets/learning/science/chap1/page2.jpg', 2),
 (3, 'image', 'assets/learning/science/chap1/page3.png', 3),
 (4, 'image', 'assets/learning/science/chap1/page4.png', 4),
-(5, 'image', 'assets/learning/science/chap1/page5.png', 5);
+(5, 'image', 'assets/learning/science/chap1/page5.png', 5),
+(6, 'image', 'assets/learning/math/chap1/page2.png', 6),
+(7, 'image', 'assets/learning/math/chap1/page1.png', 7);
 
 -- --------------------------------------------------------
 
@@ -243,7 +245,76 @@ INSERT INTO `stem_learning_page` (`page_id`, `learning_id`, `page_title_en`, `pa
 (2, 1, 'The importance of human nervous system', 'Kepentingan sistem saraf manusia', 'Detect stimuli\r\nSending information in the form of impulses\r\nInterpreting impulses\r\nGenerate appropriate response', 'Mengesan rangsangan\r\nMenghantar maklumat dalam bentuk impuls\r\nMentafsir impuls\r\nMenjana tindak balas yang sesuai', 2, 'yes'),
 (3, 1, 'Reactions to Voluntary actions and Involuntary actions ', 'Reaksi terhadap Tindakan Sukarela dan Tindakan Tanpa Sukarela', 'Voluntary actions is an action that is realised and done according to someone’s will.\r\nInvoluntary actions is an action that happens immediately without realising it or thinking about it', 'Tindakan sukarela adalah tindakan yang direalisasikan dan dilakukan mengikut kehendak seseorang.\r\nTindakan tidak sukarela adalah tindakan yang berlaku serta-merta tanpa disedari atau difikirkan', 3, 'no'),
 (4, 1, '1.2 Stimuli and Response in Humans', '1.2 Rangsangan dan Gerak Balas dalam Manusia', 'Humans have five sense organs namely eyes,ears, nose, skin and tongue.\r\nStimulus is a change in the environment that can be detected by receptors. Example: light, sound, heat, smell.\r\nResponse is action taken by the body after detecting a stimulus.\r\nPathway of Impulse : Stimulus → Receptor → Sensory neuron → CNS → Motor neuron → Effector → Response.', 'Manusia mempunyai lima organ deria iaitu mata, telinga, hidung, kulit dan lidah.\r\nRangsangan ialah perubahan persekitaran yang boleh dikesan oleh reseptor. Contoh: cahaya, bunyi, haba, bau.\r\nGerak balas ialah tindakan yang diambil oleh badan selepas mengesan rangsangan.\r\nLaluan Impuls: Rangsangan → Reseptor → Neuron deria → SSP → Neuron motor → Efektor → Gerak balas.', 4, 'no'),
-(5, 1, 'Eyes', 'Mata', 'The retina contains 2 types of photoreceptors;\r\nrod cells - sensitive to different intensities of light.\r\ncone cells - sensitive to the color of light in bright conditions', 'Retina mengandungi 2 jenis fotoreseptor;\r\nsel rod - sensitif terhadap keamatan cahaya yang berbeza.\r\nsel kon - sensitif terhadap warna cahaya dalam keadaan terang', 5, 'no');
+(5, 1, 'Eyes', 'Mata', 'The retina contains 2 types of photoreceptors;\r\nrod cells - sensitive to different intensities of light.\r\ncone cells - sensitive to the color of light in bright conditions', 'Retina mengandungi 2 jenis fotoreseptor;\r\nsel rod - sensitif terhadap keamatan cahaya yang berbeza.\r\nsel kon - sensitif terhadap warna cahaya dalam keadaan terang', 5, 'no'),
+(6, 11, '1.1 Index Notation', '1.1 Tatatanda Indeks', 'The number 4² actually the base is 4 and 2 is an index or exponent.\r\n\r\nThat means 4² is same like 4x4', 'Nombor 4² sebenarnya asasnya adalah 4 dan 2 ialah indeks atau eksponen.\r\n\r\nIni bermakna 4² sama seperti 4x4', 1, 'yes'),
+(7, 11, 'Law of Indices', 'Hukum Indeks', '', '', 2, 'no');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `stem_quiz`
+--
+
+CREATE TABLE `stem_quiz` (
+  `quiz_id` int(11) NOT NULL,
+  `quiz_title_en` varchar(255) NOT NULL,
+  `quiz_title_ms` varchar(255) NOT NULL,
+  `quiz_subject_en` varchar(255) NOT NULL,
+  `quiz_subject_ms` varchar(255) NOT NULL,
+  `quiz_total_question` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `stem_quiz`
+--
+
+INSERT INTO `stem_quiz` (`quiz_id`, `quiz_title_en`, `quiz_title_ms`, `quiz_subject_en`, `quiz_subject_ms`, `quiz_total_question`) VALUES
+(1, 'Chapter 1-Stimuli and Responses', 'Bab 1-Rangsangan dan Gerak Balas', 'Science', 'Sains', 5),
+(2, 'Chapter 1-Algebra', 'Bab 1-Algebra', 'Mathematics', 'Matematik', 5);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `stem_quiz_question`
+--
+
+CREATE TABLE `stem_quiz_question` (
+  `question_id` int(11) NOT NULL,
+  `quiz_id` int(11) NOT NULL,
+  `question_text_en` text NOT NULL,
+  `question_text_ms` text NOT NULL,
+  `question_image` varchar(255) NOT NULL,
+  `opt_a_en` varchar(255) NOT NULL,
+  `opt_a_ms` varchar(255) NOT NULL,
+  `opt_a_image` varchar(255) NOT NULL,
+  `opt_b_en` varchar(255) NOT NULL,
+  `opt_b_ms` varchar(255) NOT NULL,
+  `opt_b_image` varchar(255) NOT NULL,
+  `opt_c_en` varchar(255) NOT NULL,
+  `opt_c_ms` varchar(255) NOT NULL,
+  `opt_c_image` varchar(255) NOT NULL,
+  `opt_d_en` varchar(255) NOT NULL,
+  `opt_d_ms` varchar(255) NOT NULL,
+  `opt_d_image` varchar(255) NOT NULL,
+  `correct_answer_en` varchar(255) NOT NULL,
+  `correct_answer_ms` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `stem_quiz_question`
+--
+
+INSERT INTO `stem_quiz_question` (`question_id`, `quiz_id`, `question_text_en`, `question_text_ms`, `question_image`, `opt_a_en`, `opt_a_ms`, `opt_a_image`, `opt_b_en`, `opt_b_ms`, `opt_b_image`, `opt_c_en`, `opt_c_ms`, `opt_c_image`, `opt_d_en`, `opt_d_ms`, `opt_d_image`, `correct_answer_en`, `correct_answer_ms`) VALUES
+(1, 1, 'What is the main function of the human nervous system?', 'Apakah fungsi utama sistem saraf manusia?', '', 'Transport oxygen', 'Mengangkut oksigen', '', 'Control and coordinate body activities', 'Mengawal dan menyelaras aktiviti badan', '', 'Digest food', 'Mencerna makanan', '', 'Produce hormones', 'Menghasilkan hormon', '', 'Control and coordinate body activities', 'Mengawal dan menyelaras aktiviti badan'),
+(2, 1, 'Which part of the brain controls balance?', 'Bahagian otak manakah yang mengawal keseimbangan?', '', 'Cerebrum', 'Serebrum', '', 'Cerebellum', 'Serebelum', '', 'Medulla', 'Medula', '', 'Spinal cord', 'Saraf tunjang', '', 'Cerebellum', 'Serebelum'),
+(3, 1, 'The unit of force is?', 'Unit bagi daya ialah?', '', 'Pascal', 'Pascal', '', 'Newton', 'Newton', '', 'Joule', 'Joule', '', 'Watt', 'Watt', '', 'Newton', 'Newton'),
+(4, 1, 'Which organ detects light?', 'Organ manakah mengesan cahaya?', '', 'Ear', 'Telinga', '', 'Skin', 'Kulit', '', 'Eye', 'Mata', 'assets/quiz/science/chap1/q1.png', 'Nose', 'Hidung', '', 'Eye', 'Mata'),
+(5, 1, 'Reflex action is controlled by?', 'Tindakan refleks dikawal oleh?', '', 'Brain', 'Otak', '', 'Spinal cord', 'Saraf tunjang', '', 'Heart', 'Jantung', '', 'Lungs', 'Paru-paru', '', 'Spinal cord', 'Saraf tunjang'),
+(6, 2, '2x + 4 = 10. What is x?', '2x + 4 = 10. Berapakah nilai x?', '', '2', '2', '', '3', '3', '', '4', '4', '', '5', '5', '', '3', '3'),
+(7, 2, 'What is 15% of 200?', 'Berapakah 15% daripada 200?', '', '20', '20', '', '25', '25', '', '30', '30', '', '35', '35', '', '30', '30'),
+(8, 2, 'Solve: 3²', 'Selesaikan: 3²', '', '6', '6', '', '9', '9', '', '12', '12', '', '3', '3', '', '9', '9'),
+(9, 2, 'Factorise: x² + 5x + 6', 'Faktorkan: x² + 5x + 6', '', '(x+2)(x+3)', '(x+2)(x+3)', '', '(x+1)(x+6)', '(x+1)(x+6)', '', '(x+3)(x+3)', '(x+3)(x+3)', '', '(x+6)(x+6)', '(x+6)(x+6)', '', '(x+2)(x+3)', '(x+2)(x+3)'),
+(10, 2, 'What is the value of π (approx)?', 'Nilai π (anggaran)?', '', '3.14', '3.14', '', '2.14', '2.14', '', '4.13', '4.13', '', '3.41', '3.41', '', '3.14', '3.14');
 
 --
 -- Indexes for dumped tables
@@ -298,6 +369,18 @@ ALTER TABLE `stem_learning_page`
   ADD PRIMARY KEY (`page_id`);
 
 --
+-- Indexes for table `stem_quiz`
+--
+ALTER TABLE `stem_quiz`
+  ADD PRIMARY KEY (`quiz_id`);
+
+--
+-- Indexes for table `stem_quiz_question`
+--
+ALTER TABLE `stem_quiz_question`
+  ADD PRIMARY KEY (`question_id`);
+
+--
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -305,7 +388,7 @@ ALTER TABLE `stem_learning_page`
 -- AUTO_INCREMENT for table `learning_media`
 --
 ALTER TABLE `learning_media`
-  MODIFY `media_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `media_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `stem_faq`
@@ -347,7 +430,19 @@ ALTER TABLE `stem_learning`
 -- AUTO_INCREMENT for table `stem_learning_page`
 --
 ALTER TABLE `stem_learning_page`
-  MODIFY `page_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `page_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
+-- AUTO_INCREMENT for table `stem_quiz`
+--
+ALTER TABLE `stem_quiz`
+  MODIFY `quiz_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `stem_quiz_question`
+--
+ALTER TABLE `stem_quiz_question`
+  MODIFY `question_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
