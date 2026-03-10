@@ -206,9 +206,20 @@ class _PageItem extends StatelessWidget {
               if (media['type'] == 'image') {
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 10),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(15),
-                    child: Image.network(media['url'], fit: BoxFit.cover),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              FullScreenImagePage(imageUrl: media['url']),
+                        ),
+                      );
+                    },
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(15),
+                      child: Image.network(media['url'], fit: BoxFit.cover),
+                    ),
                   ),
                 );
               } else {
@@ -216,8 +227,6 @@ class _PageItem extends StatelessWidget {
               }
             }).toList(),
           ),
-
-          const SizedBox(height: 10),
 
           /// DESCRIPTION
           Text(
@@ -308,6 +317,55 @@ class _VideoWidgetState extends State<VideoWidget> {
                 )
               : const Center(child: CircularProgressIndicator()),
         ),
+      ),
+    );
+  }
+}
+
+class FullScreenImagePage extends StatelessWidget {
+  final String imageUrl;
+
+  const FullScreenImagePage({super.key, required this.imageUrl});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Stack(
+        children: [
+          Center(
+            child: InteractiveViewer(
+              maxScale: 5.0, // allow pinch zoom
+              child: Image.network(
+                imageUrl,
+                fit: BoxFit.contain,
+                loadingBuilder: (context, child, progress) {
+                  if (progress == null) return child;
+                  return const Center(child: CircularProgressIndicator());
+                },
+                errorBuilder: (context, error, stack) {
+                  return const Center(
+                    child: Icon(
+                      Icons.broken_image,
+                      size: 50,
+                      color: Colors.white,
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+          Positioned(
+            top: 40,
+            right: 20,
+            child: IconButton(
+              iconSize: 35,
+              color: Colors.white,
+              icon: const Icon(Icons.close),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localization/flutter_localization.dart';
+import 'package:stemxplore/career/careerquiz.dart';
 //import 'package:stemxplore/gradient_background.dart';
 import 'package:stemxplore/theme_provider.dart';
 
@@ -22,11 +23,69 @@ class _CareerpageState extends State<Careerpage> {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: buildCustomAppBar(isEnglish, context),
-        body: Center(
-          child: Text(
-            'Career information content will be displayed here.',
-            style: TextStyle(fontSize: 18),
-            textAlign: TextAlign.center,
+
+        body: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.psychology, size: 100, color: Colors.white),
+
+              SizedBox(height: 20),
+
+              Text(
+                isEnglish
+                    ? "Discover Your STEM Career 🔍"
+                    : "Kenali Kerjaya STEM Anda 🔍",
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+                textAlign: TextAlign.center,
+              ),
+
+              SizedBox(height: 20),
+
+              Text(
+                isEnglish
+                    ? "Answer a few questions to discover which STEM field suits you best: Science, Technology, Engineering, or Mathematics."
+                    : "Jawab beberapa soalan untuk mengetahui bidang STEM yang paling sesuai dengan anda.",
+                style: TextStyle(
+                  fontSize: 16,
+                  color: const Color.fromARGB(179, 0, 0, 0),
+                ),
+                textAlign: TextAlign.center,
+              ),
+
+              SizedBox(height: 40),
+
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+
+                icon: Icon(Icons.play_arrow),
+                label: Text(
+                  isEnglish ? "Start Career Quiz" : "Mula Kuiz Kerjaya",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => Careerquiz()),
+                  );
+                },
+              ),
+            ],
           ),
         ),
       ),

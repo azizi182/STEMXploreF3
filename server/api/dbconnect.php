@@ -3,7 +3,7 @@
     $servername = "localhost";
     $username = "root";
     $password = "";
-    $dbname = "stem_db";
+    $dbname = "stemxplore";
 
     // Create connection
     $conn = new mysqli($servername, $username, $password, $dbname);

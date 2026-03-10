@@ -27,7 +27,9 @@ class _QuizStartPageState extends State<QuizStartPage> {
   List questions = [];
   List<String?> selectedAnswers = [];
   bool isLoading = true;
-
+  List<bool> showResults = [];
+  List<String?> correctAnswers = [];
+  List<bool> isCorrectList = [];
   List<Map<String, dynamic>> getOptions(Map question, bool isEnglish) {
     return [
       {
@@ -62,6 +64,10 @@ class _QuizStartPageState extends State<QuizStartPage> {
       setState(() {
         questions = data;
         selectedAnswers = List<String?>.filled(questions.length, null);
+
+        showResults = List<bool>.filled(questions.length, false);
+        correctAnswers = List<String?>.filled(questions.length, null);
+        isCorrectList = List<bool>.filled(questions.length, false);
         isLoading = false;
       });
     }
@@ -85,11 +91,46 @@ class _QuizStartPageState extends State<QuizStartPage> {
   }
 
   void goNext() {
-    if (currentQuestion < questions.length - 1) {
-      setState(() {
-        currentQuestion++;
-      });
+    if (selectedAnswers[currentQuestion] == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Please select an answer")));
+      return;
     }
+
+    String correct = questions[currentQuestion]['correct_answer_en'];
+    String selected = selectedAnswers[currentQuestion]!;
+
+    bool correctStatus = selected == correct;
+
+    setState(() {
+      showResults[currentQuestion] = true;
+      correctAnswers[currentQuestion] = correct;
+      isCorrectList[currentQuestion] = correctStatus;
+    });
+
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        title: Center(
+          child: Text(
+            correctStatus ? "✅ Correct!" : "❌ Wrong!",
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ),
+        actions: [
+          Center(
+            child: TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text("OK"),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   void goBack() {
@@ -177,6 +218,7 @@ class _QuizStartPageState extends State<QuizStartPage> {
 
         body: Padding(
           padding: const EdgeInsets.all(20),
+
           child: SingleChildScrollView(
             child: Column(
               children: [
@@ -306,40 +348,63 @@ class _QuizStartPageState extends State<QuizStartPage> {
                         border: Border.all(color: Colors.black12),
                       ),
 
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-
+                      child: Row(
                         children: [
-                          if (option['image'] != null &&
-                              option['image']!.isNotEmpty)
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(10),
-                              child: Image.network(
-                                option['image']!,
-                                height: 120,
-                                width: double.infinity,
-                                fit: BoxFit.fill,
-                              ),
-                            ),
-                          if (option['image'] != null &&
-                              option['image']!.isNotEmpty)
-                            const SizedBox(height: 8),
+                          Expanded(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (option['image'] != null &&
+                                    option['image']!.isNotEmpty)
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(10),
+                                    child: Image.network(
+                                      option['image']!,
+                                      height: 120,
+                                      width: double.infinity,
+                                      fit: BoxFit.fill,
+                                    ),
+                                  ),
 
-                          Text(
-                            option['text']!,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: Colors.black87,
+                                if (option['image'] != null &&
+                                    option['image']!.isNotEmpty)
+                                  const SizedBox(height: 8),
+
+                                Text(
+                                  option['text']!,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.black87,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
                             ),
-                            textAlign: TextAlign.center,
                           ),
+
+                          /// RESULT ICON
+                          if (showResults[currentQuestion])
+                            Icon(
+                              option['text'] == correctAnswers[currentQuestion]
+                                  ? Icons.check_circle
+                                  : selectedAnswers[currentQuestion] ==
+                                        option['text']
+                                  ? Icons.cancel
+                                  : null,
+                              color:
+                                  option['text'] ==
+                                      correctAnswers[currentQuestion]
+                                  ? Colors.green
+                                  : Colors.red,
+                              size: 28,
+                            ),
                         ],
                       ),
                     ),
                   );
                 }),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 15),
 
                 /// NAVIGATION BUTTONS
                 Row(
@@ -356,21 +421,49 @@ class _QuizStartPageState extends State<QuizStartPage> {
                       ),
                     ),
                     ElevatedButton(
-                      onPressed: currentQuestion < questions.length - 1
-                          ? goNext
-                          : finishQuiz,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green[400],
-                      ),
                       child: Text(
-                        currentQuestion < questions.length - 1
-                            ? "Next"
-                            : "Finish",
-                        style: const TextStyle(color: Colors.black87),
+                        showResults[currentQuestion] ? "Next" : "Next",
                       ),
+                      onPressed: () {
+                        if (!showResults[currentQuestion]) {
+                          goNext(); // check answer first
+                        } else {
+                          if (currentQuestion < questions.length - 1) {
+                            setState(() {
+                              currentQuestion++;
+                              showResults[currentQuestion] = false;
+                            });
+                          } else {
+                            finishQuiz();
+                          }
+                        }
+                      },
                     ),
                   ],
                 ),
+                SizedBox(height: 10),
+
+                if (showResults[currentQuestion] &&
+                    !isCorrectList[currentQuestion])
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    margin: const EdgeInsets.only(top: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.green.shade50,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.green),
+                    ),
+                    child: Text(
+                      "Correct Answer: $correctAnswers",
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
               ],
             ),
           ),
