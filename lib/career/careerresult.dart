@@ -7,8 +7,13 @@ import 'package:stemxplore/theme_provider.dart';
 
 class Careerresult extends StatefulWidget {
   final int fieldId;
+  final VoidCallback onBackHome;
 
-  const Careerresult({super.key, required this.fieldId});
+  const Careerresult({
+    super.key,
+    required this.fieldId,
+    required this.onBackHome,
+  });
 
   @override
   State<Careerresult> createState() => _CareerresultState();

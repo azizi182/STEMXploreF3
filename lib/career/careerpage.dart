@@ -5,7 +5,8 @@ import 'package:stemxplore/career/careerquiz.dart';
 import 'package:stemxplore/theme_provider.dart';
 
 class Careerpage extends StatefulWidget {
-  const Careerpage({super.key});
+  final VoidCallback onStartQuiz;
+  const Careerpage({super.key, required this.onStartQuiz});
 
   @override
   State<Careerpage> createState() => _CareerpageState();
@@ -79,10 +80,7 @@ class _CareerpageState extends State<Careerpage> {
                 ),
 
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => Careerquiz()),
-                  );
+                  widget.onStartQuiz();
                 },
               ),
             ],

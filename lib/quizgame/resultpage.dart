@@ -6,8 +6,14 @@ import 'package:stemxplore/theme_provider.dart';
 class QuizResultPage extends StatefulWidget {
   final int score;
   final int total;
+  final VoidCallback onBackHome;
 
-  const QuizResultPage({super.key, required this.score, required this.total});
+  const QuizResultPage({
+    super.key,
+    required this.score,
+    required this.total,
+    required this.onBackHome,
+  });
 
   @override
   State<QuizResultPage> createState() => _QuizResultPageState();
@@ -75,7 +81,9 @@ class _QuizResultPageState extends State<QuizResultPage> {
                     ),
                     textAlign: TextAlign.center,
                   ),
+
                   const SizedBox(height: 20),
+
                   Text(
                     isEnglish
                         ? "Score: ${widget.score} / ${widget.total}"
@@ -88,10 +96,12 @@ class _QuizResultPageState extends State<QuizResultPage> {
                           : Colors.black87,
                     ),
                   ),
+
                   const SizedBox(height: 30),
+
                   ElevatedButton(
                     onPressed: () {
-                      Navigator.pop(context); // Back to quiz list or home
+                      widget.onBackHome();
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green[400],

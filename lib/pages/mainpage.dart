@@ -1,11 +1,15 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:stemxplore/career/careerquiz.dart';
+import 'package:stemxplore/career/careerresult.dart';
 
 import 'package:stemxplore/learningmaterial/materialdetailpage.dart';
 import 'package:stemxplore/pages/bookmarkpage.dart';
 import 'package:stemxplore/pages/homepage.dart';
 import 'package:stemxplore/pages/infopage.dart';
 import 'package:stemxplore/pages/settingspage.dart';
+import 'package:stemxplore/quizgame/quizstartpage.dart';
+import 'package:stemxplore/quizgame/resultpage.dart';
 import 'package:stemxplore/stemhighlight/stem_highlight.dart';
 import 'package:stemxplore/steminfo/steminfodetailpage.dart';
 //fucntion page imports
@@ -32,6 +36,16 @@ class _MainpageState extends State<Mainpage> {
   dynamic selectedStemInfo;
   dynamic selectedLearningMaterial;
 
+  //quiz
+  String? selectedQuizId;
+  String? selectedQuizTitle;
+  int? quizScore;
+  int? quizTotal;
+
+  //career
+  bool startCareerQuiz = false;
+  int? careerFieldId;
+
   /// MAIN pages controlled by Bottom Nav
   late final List<Widget> mainPages = [
     Homepage(
@@ -55,8 +69,10 @@ class _MainpageState extends State<Mainpage> {
     /// Feature pages
     Steminfopage(onSelect: onStemSelect), // 4
     Learningmaterialpage(onSelect: onLearningSelect), // 5
-    const Quizgamepage(), // 6
-    const Careerpage(), // 7
+
+    Quizgamepage(onQuizStart: onQuizStart), // 6
+    Careerpage(onStartQuiz: onCareerStart), // 7
+
     const Dailychallengepage(), // 8
     const Faqpage(), // 9
     /// Detail pages
@@ -74,6 +90,34 @@ class _MainpageState extends State<Mainpage> {
       Materialdetailpage(learningMaterial: selectedLearningMaterial)
     else
       const SizedBox(), // 12
+
+    if (selectedQuizId != null)
+      QuizStartPage(
+        quizId: selectedQuizId!,
+        quizTitle: selectedQuizTitle!,
+        onFinishQuiz: onQuizFinish,
+      )
+    else
+      const SizedBox(), // 13
+    /// Quiz Result
+    if (quizScore != null)
+      QuizResultPage(
+        score: quizScore!,
+        total: quizTotal!,
+        onBackHome: onBackHome,
+      )
+    else
+      const SizedBox(), // 14
+    /// Career Quiz
+    if (startCareerQuiz)
+      Careerquiz(onFinishCareerQuiz: onCareerFinish)
+    else
+      const SizedBox(), // 15
+    /// Career Result
+    if (careerFieldId != null)
+      Careerresult(fieldId: careerFieldId!, onBackHome: onBackHome)
+    else
+      const SizedBox(), // 16
   ];
 
   void onFeatureNavigate(int index) {
@@ -104,6 +148,51 @@ class _MainpageState extends State<Mainpage> {
       selectedLearningMaterial = learningMaterial;
       pageIndex = 12; // next available index
       navIndex = 0;
+    });
+  }
+
+  void onQuizStart(String id, String title) {
+    setState(() {
+      selectedQuizId = id;
+      selectedQuizTitle = title;
+      pageIndex = 13;
+      navIndex = 0;
+    });
+  }
+
+  void onQuizFinish(int score, int total) {
+    setState(() {
+      quizScore = score;
+      quizTotal = total;
+      pageIndex = 14;
+    });
+  }
+
+  void onBackHome() {
+    setState(() {
+      pageIndex = 0;
+      navIndex = 0;
+
+      selectedQuizId = null;
+      quizScore = null;
+
+      startCareerQuiz = false;
+      careerFieldId = null;
+    });
+  }
+
+  void onCareerStart() {
+    setState(() {
+      startCareerQuiz = true;
+      pageIndex = 15;
+      navIndex = 0;
+    });
+  }
+
+  void onCareerFinish(int fieldId) {
+    setState(() {
+      careerFieldId = fieldId;
+      pageIndex = 16;
     });
   }
 

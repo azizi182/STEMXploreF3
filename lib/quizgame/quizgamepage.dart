@@ -8,7 +8,8 @@ import 'package:stemxplore/quizgame/quizstartpage.dart';
 import 'package:stemxplore/theme_provider.dart';
 
 class Quizgamepage extends StatefulWidget {
-  const Quizgamepage({super.key});
+  final Function(String, String) onQuizStart;
+  const Quizgamepage({super.key, required this.onQuizStart});
 
   @override
   State<Quizgamepage> createState() => _QuizgamepageState();
@@ -156,16 +157,11 @@ class _QuizgamepageState extends State<Quizgamepage> {
                         children: filteredQuizzes.map((quiz) {
                           return GestureDetector(
                             onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => QuizStartPage(
-                                    quizId: quiz['quiz_id'].toString(),
-                                    quizTitle: isEnglish
-                                        ? quiz['quiz_title_en']
-                                        : quiz['quiz_title_ms'],
-                                  ),
-                                ),
+                              widget.onQuizStart(
+                                quiz['quiz_id'].toString(),
+                                isEnglish
+                                    ? quiz['quiz_title_en']
+                                    : quiz['quiz_title_ms'],
                               );
                             },
                             child: _quizCard(

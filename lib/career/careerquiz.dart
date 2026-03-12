@@ -7,8 +7,9 @@ import 'package:stemxplore/ipaddress.dart';
 import 'package:stemxplore/career/careerresult.dart';
 
 class Careerquiz extends StatefulWidget {
-  const Careerquiz({super.key});
+  final Function(int) onFinishCareerQuiz;
 
+  const Careerquiz({super.key, required this.onFinishCareerQuiz});
   @override
   State<Careerquiz> createState() => _CareerquizState();
 }
@@ -120,10 +121,7 @@ class _CareerquizState extends State<Careerquiz> {
       }
     });
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => Careerresult(fieldId: bestField)),
-    );
+    widget.onFinishCareerQuiz(bestField);
   }
 
   @override

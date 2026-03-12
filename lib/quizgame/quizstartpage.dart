@@ -10,11 +10,13 @@ import 'package:stemxplore/theme_provider.dart';
 class QuizStartPage extends StatefulWidget {
   final String quizTitle;
   final String quizId;
+  final Function(int, int) onFinishQuiz;
 
   const QuizStartPage({
     super.key,
     required this.quizTitle,
     required this.quizId,
+    required this.onFinishQuiz,
   });
 
   @override
@@ -178,12 +180,7 @@ class _QuizStartPageState extends State<QuizStartPage> {
     }
 
     // Show result
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (_) => QuizResultPage(score: score, total: questions.length),
-      ),
-    );
+    widget.onFinishQuiz(score, questions.length);
   }
 
   @override
