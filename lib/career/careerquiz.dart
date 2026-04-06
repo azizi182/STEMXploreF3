@@ -57,6 +57,7 @@ class _CareerquizState extends State<Careerquiz> {
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
 
+      if (!mounted) return; // safety check before setState
       setState(() {
         questions = data;
         selectedAnswers = List<int?>.filled(questions.length, null);
@@ -155,159 +156,193 @@ class _CareerquizState extends State<Careerquiz> {
         appBar: buildCustomAppBar(isEnglish, context),
 
         body: Padding(
-          padding: const EdgeInsets.all(20),
-
+          padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Column(
             children: [
-              /// QUESTION CARD
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 10,
-                    ),
-                  ],
-                ),
+              const SizedBox(height: 10),
 
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "Question ${currentQuestion + 1}",
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-
-                        Text(
-                          "${currentQuestion + 1} / ${questions.length}",
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey[700],
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 10),
-
-                    Text(
-                      isEnglish
-                          ? questions[currentQuestion]["cquestion_en"] ?? ""
-                          : questions[currentQuestion]["cquestion_ms"] ?? "",
-
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
+              /// PROGRESS BAR
+              LinearProgressIndicator(
+                value: (currentQuestion + 1) / questions.length,
+                backgroundColor: Colors.grey[300],
+                minHeight: 6,
               ),
 
               const SizedBox(height: 20),
 
-              /// OPTIONS
-              ...options.asMap().entries.map((entry) {
-                int index = entry.key;
-                var option = entry.value;
+              /// CENTER CONTENT
+              Expanded(
+                child: Center(
+                  child: SingleChildScrollView(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 500),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          /// QUESTION CARD
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.05),
+                                  blurRadius: 10,
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text(
+                                  "Question ${currentQuestion + 1} / ${questions.length}",
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                Text(
+                                  isEnglish
+                                      ? questions[currentQuestion]["cquestion_en"] ??
+                                            ""
+                                      : questions[currentQuestion]["cquestion_ms"] ??
+                                            "",
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
 
-                bool isSelected =
-                    selectedAnswers[currentQuestion] ==
-                    (int.tryParse(option["field"]?.toString() ?? "0") ?? 0);
+                          const SizedBox(height: 20),
 
-                Color optionColor;
+                          /// ANSWER OPTIONS
+                          ...options.asMap().entries.map((entry) {
+                            int index = entry.key;
+                            var option = entry.value;
 
-                switch (index % 4) {
-                  case 0:
-                    optionColor = isSelected
-                        ? Colors.blue.shade300
-                        : Colors.blue.shade50;
-                    break;
+                            bool isSelected =
+                                selectedAnswers[currentQuestion] ==
+                                (int.tryParse(
+                                      option["field"]?.toString() ?? "0",
+                                    ) ??
+                                    0);
 
-                  case 1:
-                    optionColor = isSelected
-                        ? Colors.green.shade300
-                        : Colors.green.shade50;
-                    break;
+                            /// Base color (always colorful)
+                            Color baseColor;
+                            Color selectedColor;
 
-                  case 2:
-                    optionColor = isSelected
-                        ? Colors.orange.shade300
-                        : Colors.orange.shade50;
-                    break;
+                            switch (index % 4) {
+                              case 0:
+                                baseColor = Colors.blue.shade100;
+                                selectedColor = Colors.blue.shade400;
+                                break;
+                              case 1:
+                                baseColor = Colors.green.shade100;
+                                selectedColor = Colors.green.shade400;
+                                break;
+                              case 2:
+                                baseColor = Colors.orange.shade100;
+                                selectedColor = Colors.orange.shade400;
+                                break;
+                              default:
+                                baseColor = Colors.pink.shade100;
+                                selectedColor = Colors.pink.shade400;
+                            }
 
-                  default:
-                    optionColor = isSelected
-                        ? Colors.pink.shade300
-                        : Colors.pink.shade50;
-                }
+                            return GestureDetector(
+                              onTap: () {
+                                final fieldId =
+                                    int.tryParse(
+                                      option["field"]?.toString() ?? "0",
+                                    ) ??
+                                    0;
+                                if (fieldId != 0) selectAnswer(fieldId);
+                              },
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 200),
+                                curve: Curves.easeInOut,
+                                width: double.infinity,
+                                margin: const EdgeInsets.only(bottom: 12),
+                                padding: const EdgeInsets.all(16),
 
-                return GestureDetector(
-                  onTap: () {
-                    final fieldId =
-                        int.tryParse(option["field"]?.toString() ?? "0") ?? 0;
-                    if (fieldId != 0) selectAnswer(fieldId);
-                  },
+                                decoration: BoxDecoration(
+                                  color: isSelected
+                                      ? selectedColor
+                                      : baseColor, // ✅ always colorful
+                                  borderRadius: BorderRadius.circular(15),
+                                  border: Border.all(
+                                    color: isSelected
+                                        ? selectedColor
+                                        : baseColor,
+                                    width: 2,
+                                  ),
+                                  boxShadow: isSelected
+                                      ? [
+                                          BoxShadow(
+                                            color: selectedColor.withOpacity(
+                                              0.4,
+                                            ),
+                                            blurRadius: 8,
+                                            offset: const Offset(0, 3),
+                                          ),
+                                        ]
+                                      : [],
+                                ),
 
-                  child: Container(
-                    width: double.infinity,
-                    margin: const EdgeInsets.only(bottom: 12),
-                    padding: const EdgeInsets.all(15),
-
-                    decoration: BoxDecoration(
-                      color: optionColor,
-                      borderRadius: BorderRadius.circular(15),
-                      border: Border.all(color: Colors.black12),
-                    ),
-
-                    child: Text(
-                      option["text"],
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.black87,
+                                child: Text(
+                                  option["text"],
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: isSelected
+                                        ? Colors.white
+                                        : Colors.black87, // ✅ contrast
+                                  ),
+                                ),
+                              ),
+                            );
+                          }),
+                        ],
                       ),
                     ),
                   ),
-                );
-              }),
+                ),
+              ),
 
-              const SizedBox(height: 20),
-
-              /// NAVIGATION BUTTONS
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  ElevatedButton(
-                    onPressed: currentQuestion > 0 ? goBack : null,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.grey[400],
+              /// BOTTOM BUTTONS (FIXED)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    ElevatedButton(
+                      onPressed: currentQuestion > 0 ? goBack : null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.grey[400],
+                      ),
+                      child: const Text(
+                        "Back",
+                        style: TextStyle(color: Colors.black),
+                      ),
                     ),
-                    child: const Text(
-                      "Back",
-                      style: TextStyle(color: Colors.black),
+                    ElevatedButton(
+                      onPressed: goNext,
+                      child: Text(
+                        currentQuestion == questions.length - 1
+                            ? "Finish"
+                            : "Next",
+                      ),
                     ),
-                  ),
-
-                  ElevatedButton(
-                    onPressed: goNext,
-                    child: Text(
-                      currentQuestion == questions.length - 1
-                          ? "Finish"
-                          : "Next",
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ],
           ),

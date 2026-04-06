@@ -93,6 +93,7 @@ class _MainpageState extends State<Mainpage> {
 
     if (selectedQuizId != null)
       QuizStartPage(
+        key: ValueKey(selectedQuizId), // force rebuild when quiz changes
         quizId: selectedQuizId!,
         quizTitle: selectedQuizTitle!,
         onFinishQuiz: onQuizFinish,
@@ -110,7 +111,10 @@ class _MainpageState extends State<Mainpage> {
       const SizedBox(), // 14
     /// Career Quiz
     if (startCareerQuiz)
-      Careerquiz(onFinishCareerQuiz: onCareerFinish)
+      Careerquiz(
+        key: ValueKey(DateTime.now().millisecondsSinceEpoch),
+        onFinishCareerQuiz: onCareerFinish,
+      )
     else
       const SizedBox(), // 15
     /// Career Result
@@ -183,6 +187,9 @@ class _MainpageState extends State<Mainpage> {
 
   void onCareerStart() {
     setState(() {
+      careerFieldId = null;
+      startCareerQuiz = false; // briefly hide old widget
+
       startCareerQuiz = true;
       pageIndex = 15;
       navIndex = 0;

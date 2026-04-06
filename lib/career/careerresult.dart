@@ -130,58 +130,69 @@ class _CareerresultState extends State<Careerresult> {
               Expanded(
                 child: ListView.builder(
                   itemCount: jobs.length,
-
                   itemBuilder: (context, index) {
                     var job = jobs[index];
 
                     return Container(
                       margin: const EdgeInsets.only(bottom: 15),
-                      padding: const EdgeInsets.all(15),
-
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(15),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 6,
+                            offset: Offset(0, 3),
+                          ),
+                        ],
                       ),
-
-                      child: Row(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          /// IMAGE
+                          /// IMAGE (portrait, full width)
                           if (job['image'] != null && job['image'].isNotEmpty)
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(10),
-
-                              child: Image.network(
-                                job['image'],
-                                width: 80,
-                                height: 80,
-                                fit: BoxFit.cover,
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => FullScreenImagePage(
+                                      imageUrl: job['image'],
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: ClipRRect(
+                                borderRadius: const BorderRadius.only(
+                                  topLeft: Radius.circular(15),
+                                  topRight: Radius.circular(15),
+                                ),
+                                child: Image.network(
+                                  job['image'],
+                                  height: 550, // make it big and portrait style
+                                  fit: BoxFit.fill,
+                                ),
                               ),
                             ),
 
-                          const SizedBox(width: 15),
-
-                          /// TEXT
-                          Expanded(
+                          /// TEXT BELOW IMAGE
+                          Padding(
+                            padding: const EdgeInsets.all(15),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-
                               children: [
                                 Text(
                                   isEnglish
                                       ? job['job_title_en']
                                       : job['job_title_ms'],
-
                                   style: const TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-
-                                const SizedBox(height: 6),
-
+                                const SizedBox(height: 8),
                                 Text(
                                   isEnglish ? job['desc_en'] : job['desc_ms'],
-
                                   style: const TextStyle(
                                     fontSize: 14,
                                     color: Colors.black87,
@@ -248,6 +259,55 @@ class _CareerresultState extends State<Careerresult> {
           ),
         ),
       ],
+    );
+  }
+}
+
+class FullScreenImagePage extends StatelessWidget {
+  final String imageUrl;
+
+  const FullScreenImagePage({super.key, required this.imageUrl});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Stack(
+        children: [
+          Center(
+            child: InteractiveViewer(
+              maxScale: 5.0, // allow pinch zoom
+              child: Image.network(
+                imageUrl,
+                fit: BoxFit.contain,
+                loadingBuilder: (context, child, progress) {
+                  if (progress == null) return child;
+                  return const Center(child: CircularProgressIndicator());
+                },
+                errorBuilder: (context, error, stack) {
+                  return const Center(
+                    child: Icon(
+                      Icons.broken_image,
+                      size: 50,
+                      color: Colors.white,
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+          Positioned(
+            top: 40,
+            right: 20,
+            child: IconButton(
+              iconSize: 35,
+              color: Colors.white,
+              icon: const Icon(Icons.close),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

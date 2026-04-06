@@ -72,7 +72,7 @@ class _SplashpageState extends State<Splashpage>
                 textAlign: TextAlign.center,
               ),
 
-              const SizedBox(height: 60),
+              SizedBox(height: 200),
 
               const Positioned(
                 left: 0,
@@ -80,6 +80,7 @@ class _SplashpageState extends State<Splashpage>
                 bottom: 35,
                 child: Icon(Icons.touch_app, size: 40, color: Colors.black45),
               ),
+
               Positioned(
                 left: 0,
                 right: 0,

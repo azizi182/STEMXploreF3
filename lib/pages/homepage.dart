@@ -267,7 +267,7 @@ class _HomepageState extends State<Homepage> {
                       fontWeight: FontWeight.bold,
                       color: theme.brightness == Brightness.dark
                           ? Color.fromARGB(255, 52, 137, 55)
-                          : Colors.black,
+                          : const Color.fromARGB(255, 255, 255, 255),
                       fontSize: 16,
                     ),
                     children: const [
