@@ -383,15 +383,28 @@ class _CareerquizState extends State<Careerquiz> {
           },
           child: Padding(
             padding: const EdgeInsets.only(right: 16),
-            child: ClipOval(
-              child: Image.asset(
-                isEnglish
-                    ? 'assets/flag/language ms_flag.png'
-                    : 'assets/flag/language us_flag.png',
-                width: 36,
-                height: 36,
-                fit: BoxFit.cover,
-              ),
+            child: Column(
+              children: [
+                ClipOval(
+                  child: Image.asset(
+                    // The flag changes based on isEnglish
+                    isEnglish
+                        ? 'assets/flag/language ms_flag.png'
+                        : 'assets/flag/language us_flag.png',
+                    width: 36,
+                    height: 36,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                Text(
+                  isEnglish ? 'MS' : 'EN',
+                  style: const TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+              ],
             ),
           ),
         ),

@@ -32,48 +32,38 @@ class _StemHighlightState extends State<StemHighlight> {
               : (widget.data['highlight_title_ms']?.toString() ?? ''),
         ),
         backgroundColor: Colors.transparent,
-        body: Stack(
-          children: [
-            Center(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: Container(
-                  margin: const EdgeInsets.fromLTRB(16, 100, 16, 16),
-                  decoration: const BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(20)),
-                    color: Color.fromRGBO(147, 218, 151, 1),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      /// HERO MEDIA
-                      _buildMedia(hasDescription),
-                      if (hasDescription)
-                        Container(
-                          margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                          padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          constraints: const BoxConstraints(minHeight: 220),
-                          child: Text(
-                            description,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              height: 1.7,
-                              color: Colors.black87,
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
 
-            /// BACK BUTTON (Overlay)
-          ],
+        body: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(8, 20, 8, 20),
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 20),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                /// MEDIA FIRST (like learning page)
+                _buildMedia(false),
+
+                const SizedBox(height: 12),
+
+                /// DESCRIPTION
+                if (description.trim().isNotEmpty)
+                  Text(
+                    description,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      height: 1.6,
+                      color: Colors.black,
+                    ),
+                  ),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -83,26 +73,35 @@ class _StemHighlightState extends State<StemHighlight> {
     final List mediaList = widget.data['media'] is List
         ? widget.data['media']
         : [widget.data['media']];
-    final double mediaHeight = hasDescription
-        ? 300
-        : MediaQuery.of(context).size.height * 0.7;
 
     if (widget.data['highlight_type'] == 'image') {
-      return CarouselSlider(
-        options: CarouselOptions(
-          height: mediaHeight,
-          viewportFraction: 1,
-          autoPlay: true,
-          autoPlayCurve: Curves.easeInOut,
-          enableInfiniteScroll: false,
-          autoPlayAnimationDuration: const Duration(milliseconds: 800),
-        ),
-        items: mediaList.map<Widget>((img) {
-          return _imageItem(context, img, mediaHeight);
+      return Column(
+        children: mediaList.map<Widget>((img) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => FullScreenImagePage(imageUrl: img),
+                  ),
+                );
+              },
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(15),
+                child: Image.network(
+                  img,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+          );
         }).toList(),
       );
     } else {
-      return VideoWidget(url: mediaList.first, height: mediaHeight);
+      return VideoWidget(url: mediaList.first, height: 220);
     }
   }
 
@@ -137,29 +136,28 @@ class _StemHighlightState extends State<StemHighlight> {
                 localization.translate(nextLocale);
                 setState(() {}); // rebuild UI
               },
-              child: Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.black, width: 1),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
-                      blurRadius: 6,
-                      offset: const Offset(0, 3),
+              child: Column(
+                children: [
+                  ClipOval(
+                    child: Image.asset(
+                      // The flag changes based on isEnglish
+                      isEnglish
+                          ? 'assets/flag/language ms_flag.png'
+                          : 'assets/flag/language us_flag.png',
+                      width: 36,
+                      height: 36,
+                      fit: BoxFit.cover,
                     ),
-                  ],
-                ),
-                child: ClipOval(
-                  child: Image.asset(
-                    // The flag changes based on isEnglish
-                    isEnglish
-                        ? 'assets/flag/language ms_flag.png'
-                        : 'assets/flag/language us_flag.png',
-                    width: 36,
-                    height: 36,
-                    fit: BoxFit.cover,
                   ),
-                ),
+                  Text(
+                    isEnglish ? 'MS' : 'EN',
+                    style: const TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -183,6 +181,7 @@ Widget _imageItem(BuildContext context, String url, double height) {
     child: SizedBox(
       width: double.infinity,
       height: height,
+
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20),
         child: Image.network(

@@ -129,6 +129,7 @@ class _DailychallengepageState extends State<Dailychallengepage> {
         appBar: buildCustomAppBar(isEnglish, title, localization),
         body: Center(
           child: Column(
+            //mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Expanded(
                 child: _isLoading
@@ -136,174 +137,181 @@ class _DailychallengepageState extends State<Dailychallengepage> {
                     : SingleChildScrollView(
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                          child: Column(
-                            children: [
-                              const SizedBox(
-                                height: 35,
-                              ), // MOVED SLIGHTLY BELOW
-                              // CHALLENGE CARD
-                              Container(
-                                padding: const EdgeInsets.all(20),
-                                decoration: BoxDecoration(
-                                  color: const Color.fromARGB(
-                                    255,
-                                    255,
-                                    255,
-                                    255,
+                          child: Center(
+                            child: Column(
+                              //mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const SizedBox(
+                                  height: 35,
+                                ), // MOVED SLIGHTLY BELOW
+                                // CHALLENGE CARD
+                                Container(
+                                  padding: const EdgeInsets.all(20),
+                                  decoration: BoxDecoration(
+                                    color: const Color.fromARGB(
+                                      255,
+                                      255,
+                                      255,
+                                      255,
+                                    ),
+                                    borderRadius: BorderRadius.circular(24),
+                                    border: Border.all(color: Colors.black12),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withValues(
+                                          alpha: 0.35,
+                                        ),
+                                        blurRadius: 6,
+                                        offset: const Offset(0, 3),
+                                      ),
+                                    ],
                                   ),
-                                  borderRadius: BorderRadius.circular(24),
-                                  border: Border.all(color: Colors.black12),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withValues(
-                                        alpha: 0.35,
-                                      ),
-                                      blurRadius: 6,
-                                      offset: const Offset(0, 3),
-                                    ),
-                                  ],
-                                ),
-                                child: Column(
-                                  children: [
-                                    Text(
-                                      isEnglish
-                                          ? 'STEM Fact of the Day – ${currentChallenge.titleEn}'
-                                          : 'Fakta STEM Hari Ini – ${currentChallenge.titleMs}',
-                                      textAlign: TextAlign.center,
-                                      style: const TextStyle(
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 12),
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(16),
-                                      child: Image.asset(
-                                        currentChallenge.imagePath,
-                                        height: 160,
-                                        width: double.infinity,
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 12),
-                                    Align(
-                                      alignment: Alignment.centerLeft,
-                                      child: Text(
+                                  child: Column(
+                                    children: [
+                                      Text(
                                         isEnglish
-                                            ? 'Did you know?'
-                                            : 'Tahukah anda?',
+                                            ? 'STEM Fact of the Day – ${currentChallenge.titleEn}'
+                                            : 'Fakta STEM Hari Ini – ${currentChallenge.titleMs}',
+                                        textAlign: TextAlign.center,
                                         style: const TextStyle(
-                                          color: Colors.black87,
+                                          color: Colors.black,
                                           fontWeight: FontWeight.bold,
-                                          fontSize: 16,
+                                          fontSize: 18,
                                         ),
                                       ),
-                                    ),
-                                    const SizedBox(height: 5),
-                                    Text(
-                                      isEnglish
-                                          ? currentChallenge.factEn
-                                          : currentChallenge.factMs,
-                                      textAlign: TextAlign.justify,
-                                      style: const TextStyle(
-                                        color: Colors.black87,
-                                        fontSize: 15,
-                                        height: 1.4,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 15),
-                                    ElevatedButton(
-                                      onPressed: _isCompleted
-                                          ? null
-                                          : _handleComplete,
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.black,
-                                        foregroundColor: Colors.white,
-                                        minimumSize: const Size(
-                                          double.infinity,
-                                          50,
-                                        ),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
+                                      const SizedBox(height: 12),
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(16),
+                                        child: Image.asset(
+                                          currentChallenge.imagePath,
+                                          height: 160,
+                                          width: double.infinity,
+                                          fit: BoxFit.cover,
                                         ),
                                       ),
-                                      child: Text(
-                                        _isCompleted
-                                            ? (isEnglish
-                                                  ? 'Challenge Finished'
-                                                  : 'Cabaran Selesai')
-                                            : (isEnglish
-                                                  ? 'Complete Challenge'
-                                                  : 'Selesaikan Cabaran'),
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-
-                              const SizedBox(height: 45),
-
-                              // SUCCESS MESSAGE (SMALLER CARD + STRONGER SHADOW)
-                              if (_isCompleted)
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 20.0,
-                                  ), // Makes card smaller
-                                  child: Container(
-                                    padding: const EdgeInsets.all(15),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(24),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withValues(
-                                            alpha: 0.35,
-                                          ), // STRONGER SHADOW
-                                          blurRadius: 12,
-                                          offset: const Offset(0, 6),
-                                        ),
-                                      ],
-                                    ),
-                                    child: Column(
-                                      children: [
-                                        const Icon(
-                                          Icons.check_circle,
-                                          color: Color.fromARGB(
-                                            255,
-                                            93,
-                                            241,
-                                            98,
-                                          ),
-                                          size: 40,
-                                        ),
-                                        const SizedBox(height: 10),
-                                        Text(
-                                          isEnglish ? 'Well done!' : 'Syabas!',
+                                      const SizedBox(height: 12),
+                                      Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: Text(
+                                          isEnglish
+                                              ? 'Did you know?'
+                                              : 'Tahukah anda?',
                                           style: const TextStyle(
+                                            color: Colors.black87,
                                             fontWeight: FontWeight.bold,
                                             fontSize: 16,
                                           ),
                                         ),
-                                        const SizedBox(height: 5),
-                                        Text(
-                                          isEnglish
-                                              ? 'You completed today\'s challenge.'
-                                              : 'Anda telah menyelesaikan cabaran hari ini.',
-                                          textAlign: TextAlign.center,
-                                          style: const TextStyle(fontSize: 13),
+                                      ),
+                                      const SizedBox(height: 5),
+                                      Text(
+                                        isEnglish
+                                            ? currentChallenge.factEn
+                                            : currentChallenge.factMs,
+                                        textAlign: TextAlign.justify,
+                                        style: const TextStyle(
+                                          color: Colors.black87,
+                                          fontSize: 15,
+                                          height: 1.4,
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                      const SizedBox(height: 15),
+                                      ElevatedButton(
+                                        onPressed: _isCompleted
+                                            ? null
+                                            : _handleComplete,
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.black,
+                                          foregroundColor: Colors.white,
+                                          minimumSize: const Size(
+                                            double.infinity,
+                                            50,
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                          ),
+                                        ),
+                                        child: Text(
+                                          _isCompleted
+                                              ? (isEnglish
+                                                    ? 'Challenge Finished'
+                                                    : 'Cabaran Selesai')
+                                              : (isEnglish
+                                                    ? 'Complete Challenge'
+                                                    : 'Selesaikan Cabaran'),
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              const SizedBox(height: 20),
-                            ],
+
+                                const SizedBox(height: 45),
+
+                                // SUCCESS MESSAGE (SMALLER CARD + STRONGER SHADOW)
+                                if (_isCompleted)
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 20.0,
+                                    ), // Makes card smaller
+                                    child: Container(
+                                      padding: const EdgeInsets.all(15),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(24),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withValues(
+                                              alpha: 0.35,
+                                            ), // STRONGER SHADOW
+                                            blurRadius: 12,
+                                            offset: const Offset(0, 6),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Column(
+                                        children: [
+                                          const Icon(
+                                            Icons.check_circle,
+                                            color: Color.fromARGB(
+                                              255,
+                                              93,
+                                              241,
+                                              98,
+                                            ),
+                                            size: 40,
+                                          ),
+                                          const SizedBox(height: 10),
+                                          Text(
+                                            isEnglish
+                                                ? 'Well done!'
+                                                : 'Syabas!',
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 5),
+                                          Text(
+                                            isEnglish
+                                                ? 'You completed today\'s challenge.'
+                                                : 'Anda telah menyelesaikan cabaran hari ini.',
+                                            textAlign: TextAlign.center,
+                                            style: const TextStyle(
+                                              fontSize: 13,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                const SizedBox(height: 20),
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -351,28 +359,15 @@ class _DailychallengepageState extends State<Dailychallengepage> {
 
                 setState(() {}); // rebuild UI
               },
-              child: Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.black, width: 1),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
-                      blurRadius: 6,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: ClipOval(
-                  child: Image.asset(
-                    // The flag changes based on isEnglish
-                    isEnglish
-                        ? 'assets/flag/language ms_flag.png'
-                        : 'assets/flag/language us_flag.png',
-                    width: 36,
-                    height: 36,
-                    fit: BoxFit.cover,
-                  ),
+              child: ClipOval(
+                child: Image.asset(
+                  // The flag changes based on isEnglish
+                  isEnglish
+                      ? 'assets/flag/language ms_flag.png'
+                      : 'assets/flag/language us_flag.png',
+                  width: 36,
+                  height: 36,
+                  fit: BoxFit.cover,
                 ),
               ),
             ),

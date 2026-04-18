@@ -21,6 +21,9 @@ class _BookmarkpageState extends State<Bookmarkpage> {
   List<Map<String, dynamic>> bookmarkedPages = [];
   String selectedCategory = "All";
 
+  bool selectionMode = false;
+  Set<String> selectedPages = {};
+
   @override
   void initState() {
     super.initState();
@@ -28,33 +31,49 @@ class _BookmarkpageState extends State<Bookmarkpage> {
   }
 
   Future<void> _loadBookmarks() async {
-    final manager = await BookmarkManager.getInstance();
-    final pageIds = manager.getBookmarks();
+    try {
+      final manager = await BookmarkManager.getInstance();
+      final pageIds = manager.getBookmarks();
 
-    // You need your API data (materials) to find these pages
-    final response = await http.get(
-      Uri.parse('${ipaddress.baseUrl}api/get_learning_material.php'),
-    );
-    final data = (json.decode(response.body) as List<dynamic>);
+      final response = await http.get(
+        Uri.parse('${ipaddress.baseUrl}api/get_learning_material.php'),
+      );
 
-    List<Map<String, dynamic>> pages = [];
-    for (var learning in data) {
-      for (var page in (learning['pages'] ?? [])) {
-        if (pageIds.contains(page['page_id'])) {
-          pages.add({
-            'learning_subject_en': learning['learning_subject_en'],
-            'learning_subject_ms': learning['learning_subject_ms'],
-            'learning_title_en': learning['learning_title_en'],
-            'learning_title_ms': learning['learning_title_ms'],
-            'page': page,
-          });
+      // 1. Check if the server returned a 200 OK
+      if (response.statusCode == 200) {
+        // 2. Check if the body is actually empty
+        if (response.body.isEmpty) {
+          print("Error: Server returned an empty body.");
+          return;
         }
-      }
-    }
 
-    setState(() {
-      bookmarkedPages = pages;
-    });
+        final data = (json.decode(response.body) as List<dynamic>);
+
+        List<Map<String, dynamic>> pages = [];
+        for (var learning in data) {
+          for (var page in (learning['pages'] ?? [])) {
+            if (pageIds.contains(page['page_id'])) {
+              pages.add({
+                'learning_subject_en': learning['learning_subject_en'],
+                'learning_subject_ms': learning['learning_subject_ms'],
+                'learning_title_en': learning['learning_title_en'],
+                'learning_title_ms': learning['learning_title_ms'],
+                'page': page,
+              });
+            }
+          }
+        }
+
+        setState(() {
+          bookmarkedPages = pages;
+        });
+      } else {
+        print("Server Error: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("Caught error: $e");
+      // This will now catch the FormatException instead of crashing the app
+    }
   }
 
   @override
@@ -109,6 +128,44 @@ class _BookmarkpageState extends State<Bookmarkpage> {
                 _buildCategoryTabs(isEnglish),
 
                 const SizedBox(height: 10),
+                Divider(color: Colors.black26),
+
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        selectionMode
+                            ? (isEnglish ? "Select Items" : "Pilih Item")
+                            : "",
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+
+                      TextButton(
+                        onPressed: () {
+                          setState(() {
+                            selectionMode = !selectionMode;
+                            selectedPages.clear();
+                          });
+                        },
+                        child: Text(
+                          selectionMode
+                              ? (isEnglish ? "Cancel" : "Batal")
+                              : (isEnglish ? "Select" : "Pilih"),
+                          style: TextStyle(
+                            color: const Color.fromARGB(255, 0, 6, 0),
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Divider(color: Colors.black26),
 
                 Expanded(
                   child: filteredBookmarks.isEmpty
@@ -145,6 +202,19 @@ class _BookmarkpageState extends State<Bookmarkpage> {
 
                             return GestureDetector(
                               onTap: () {
+                                final id = page['page_id'].toString();
+
+                                if (selectionMode) {
+                                  setState(() {
+                                    if (selectedPages.contains(id)) {
+                                      selectedPages.remove(id);
+                                    } else {
+                                      selectedPages.add(id);
+                                    }
+                                  });
+                                  return;
+                                }
+
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -160,103 +230,137 @@ class _BookmarkpageState extends State<Bookmarkpage> {
                                   ),
                                 ).then((_) => _loadBookmarks());
                               },
-                              child: Container(
-                                margin: const EdgeInsets.only(bottom: 20),
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    /// LEFT IMAGE
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(15),
-                                      child:
-                                          page['media'] != null &&
-                                              page['media'].isNotEmpty &&
-                                              page['media'][0]['type'] ==
-                                                  'image'
-                                          ? Image.network(
-                                              page['media'][0]['url'],
-                                              width: 90,
-                                              height: 90,
-                                              fit: BoxFit.cover,
+                              child: Stack(
+                                children: [
+                                  Container(
+                                    margin: const EdgeInsets.only(bottom: 20),
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(20),
+                                      border:
+                                          selectedPages.contains(
+                                            page['page_id']?.toString() ?? '',
+                                          )
+                                          ? Border.all(
+                                              color: Colors.green,
+                                              width: 2,
                                             )
-                                          : Container(
-                                              width: 90,
-                                              height: 90,
-                                              color: Colors.grey[300],
-                                              child: const Icon(
-                                                Icons.image,
-                                                size: 40,
-                                              ),
-                                            ),
+                                          : null,
                                     ),
-
-                                    const SizedBox(width: 15),
-
-                                    /// RIGHT CONTENT
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            subject,
-                                            style: const TextStyle(
-                                              fontSize: 15,
-                                              color: Colors.black87,
-                                              fontWeight: FontWeight.normal,
-                                            ),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
+                                    child: Row(
+                                      children: [
+                                        /// IMAGE
+                                        ClipRRect(
+                                          borderRadius: BorderRadius.circular(
+                                            15,
                                           ),
+                                          child:
+                                              page['media'] != null &&
+                                                  page['media'].isNotEmpty &&
+                                                  page['media'][0]['type'] ==
+                                                      'image'
+                                              ? Image.network(
+                                                  page['media'][0]['url'],
+                                                  width: 90,
+                                                  height: 90,
+                                                  fit: BoxFit.cover,
+                                                )
+                                              : Container(
+                                                  width: 90,
+                                                  height: 90,
+                                                  color: Colors.grey[300],
+                                                  child: const Icon(
+                                                    Icons.image,
+                                                  ),
+                                                ),
+                                        ),
 
-                                          /// Learning Title
-                                          Text(
-                                            title,
-                                            style: const TextStyle(
-                                              color: Colors.black,
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
+                                        const SizedBox(width: 15),
+
+                                        /// TEXT
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(subject),
+                                              Text(title),
+                                              Text(pageTitle),
+                                            ],
                                           ),
+                                        ),
 
-                                          const SizedBox(height: 6),
+                                        const Icon(
+                                          Icons.arrow_forward_ios,
+                                          size: 18,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
 
-                                          /// Page Title
-                                          Text(
-                                            pageTitle,
-                                            style: const TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.black87,
-                                            ),
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
+                                  /// CHECKBOX OVERLAY
+                                  if (selectionMode)
+                                    Positioned(
+                                      top: 10,
+                                      right: 10,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: Colors.white,
+                                          border: Border.all(
+                                            color: Colors.green,
                                           ),
-                                        ],
+                                        ),
+                                        child: Icon(
+                                          selectedPages.contains(
+                                                page['page_id']?.toString() ??
+                                                    '',
+                                              )
+                                              ? Icons.check_box
+                                              : Icons.check_box_outline_blank,
+                                          color: Colors.green,
+                                        ),
                                       ),
                                     ),
-
-                                    /// Arrow
-                                    const Icon(
-                                      Icons.arrow_forward_ios,
-                                      size: 18,
-                                      color: Colors.grey,
-                                    ),
-                                  ],
-                                ),
+                                ],
                               ),
                             );
                           },
                         ),
                 ),
+
+                if (selectionMode)
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: ElevatedButton.icon(
+                      onPressed: selectedPages.isEmpty
+                          ? null
+                          : () async {
+                              final manager =
+                                  await BookmarkManager.getInstance();
+
+                              for (String id in selectedPages) {
+                                manager.removeBookmark(id);
+                              }
+
+                              selectedPages.clear();
+                              selectionMode = false;
+
+                              setState(() {});
+                              _loadBookmarks();
+                            },
+                      icon: const Icon(Icons.delete),
+                      label: Text(
+                        isEnglish ? "Remove Selected" : "Buang Yang Dipilih",
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
+                        minimumSize: const Size(double.infinity, 45),
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),
@@ -296,29 +400,28 @@ class _BookmarkpageState extends State<Bookmarkpage> {
 
                 setState(() {}); // rebuild UI
               },
-              child: Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.black, width: 1),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
-                      blurRadius: 6,
-                      offset: const Offset(0, 3),
+              child: Column(
+                children: [
+                  ClipOval(
+                    child: Image.asset(
+                      // The flag changes based on isEnglish
+                      isEnglish
+                          ? 'assets/flag/language ms_flag.png'
+                          : 'assets/flag/language us_flag.png',
+                      width: 36,
+                      height: 36,
+                      fit: BoxFit.cover,
                     ),
-                  ],
-                ),
-                child: ClipOval(
-                  child: Image.asset(
-                    // The flag changes based on isEnglish
-                    isEnglish
-                        ? 'assets/flag/language ms_flag.png'
-                        : 'assets/flag/language us_flag.png',
-                    width: 36,
-                    height: 36,
-                    fit: BoxFit.cover,
                   ),
-                ),
+                  Text(
+                    isEnglish ? 'MS' : 'EN',
+                    style: const TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

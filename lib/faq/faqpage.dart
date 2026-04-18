@@ -139,6 +139,22 @@ class _FaqpageState extends State<Faqpage> {
                         duration: const Duration(milliseconds: 300),
                       ),
                       const SizedBox(height: 8),
+
+                      // image faq
+                      if (expanded[index] && faq['faq_image'] != null)
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(16),
+                          margin: const EdgeInsets.only(bottom: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.green[100],
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Image.network(
+                            faq['faq_image']!,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
                     ],
                   );
                 },
@@ -175,29 +191,28 @@ class _FaqpageState extends State<Faqpage> {
                 localization.translate(nextLocale);
                 setState(() {}); // rebuild UI
               },
-              child: Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.black, width: 1),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
-                      blurRadius: 6,
-                      offset: const Offset(0, 3),
+              child: Column(
+                children: [
+                  ClipOval(
+                    child: Image.asset(
+                      // The flag changes based on isEnglish
+                      isEnglish
+                          ? 'assets/flag/language ms_flag.png'
+                          : 'assets/flag/language us_flag.png',
+                      width: 36,
+                      height: 36,
+                      fit: BoxFit.cover,
                     ),
-                  ],
-                ),
-                child: ClipOval(
-                  child: Image.asset(
-                    // The flag changes based on isEnglish
-                    isEnglish
-                        ? 'assets/flag/language ms_flag.png'
-                        : 'assets/flag/language us_flag.png',
-                    width: 36,
-                    height: 36,
-                    fit: BoxFit.cover,
                   ),
-                ),
+                  Text(
+                    isEnglish ? 'MS' : 'EN',
+                    style: const TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

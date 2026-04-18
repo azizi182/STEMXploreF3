@@ -46,6 +46,9 @@ class _MainpageState extends State<Mainpage> {
   bool startCareerQuiz = false;
   int? careerFieldId;
 
+  // to use back button
+  List<int> pageHistory = [0];
+
   /// MAIN pages controlled by Bottom Nav
   late final List<Widget> mainPages = [
     Homepage(
@@ -126,32 +129,34 @@ class _MainpageState extends State<Mainpage> {
 
   void onFeatureNavigate(int index) {
     setState(() {
-      pageIndex = index;
       navIndex = 0; // stay on Home tab
+      navigateTo(index);
     });
   }
 
   void onHighlightSelected(dynamic highlight) {
     setState(() {
       selectedHighlight = highlight;
-      pageIndex = 10;
       navIndex = 0;
+      navigateTo(10); // navigate to highlight detail page
     });
   }
 
   void onStemSelect(dynamic stemInfo) {
     setState(() {
       selectedStemInfo = stemInfo;
-      pageIndex = 11;
+
       navIndex = 0;
+      navigateTo(11); // navigate to stem info detail page
     });
   }
 
   void onLearningSelect(dynamic learningMaterial) {
     setState(() {
       selectedLearningMaterial = learningMaterial;
-      pageIndex = 12; // next available index
+
       navIndex = 0;
+      navigateTo(12); // navigate to learning material detail page
     });
   }
 
@@ -159,8 +164,9 @@ class _MainpageState extends State<Mainpage> {
     setState(() {
       selectedQuizId = id;
       selectedQuizTitle = title;
-      pageIndex = 13;
+
       navIndex = 0;
+      navigateTo(13); // navigate to quiz start page
     });
   }
 
@@ -168,13 +174,13 @@ class _MainpageState extends State<Mainpage> {
     setState(() {
       quizScore = score;
       quizTotal = total;
-      pageIndex = 14;
+      navigateTo(14); // navigate to quiz result page
     });
   }
 
   void onBackHome() {
     setState(() {
-      pageIndex = 0;
+      navigateTo(0); // navigate to home page
       navIndex = 0;
 
       selectedQuizId = null;
@@ -191,15 +197,24 @@ class _MainpageState extends State<Mainpage> {
       startCareerQuiz = false; // briefly hide old widget
 
       startCareerQuiz = true;
-      pageIndex = 15;
+
       navIndex = 0;
+      navigateTo(15); // navigate to career quiz page
     });
   }
 
   void onCareerFinish(int fieldId) {
     setState(() {
       careerFieldId = fieldId;
-      pageIndex = 16;
+      navigateTo(16); // navigate to career result page
+    });
+  }
+
+  // BACK BUTTON HANDLING
+  void navigateTo(int index) {
+    setState(() {
+      pageHistory.add(index);
+      pageIndex = index;
     });
   }
 
@@ -207,56 +222,69 @@ class _MainpageState extends State<Mainpage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return GradientBackground(
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-
-        /// PAGE SWITCHING
-        body: IndexedStack(index: pageIndex, children: pages),
-
-        /// BOTTOM NAVIGATION
-        bottomNavigationBar: CurvedNavigationBar(
-          index: navIndex,
-          height: 60,
-          backgroundColor: Colors.transparent,
-          color: theme.brightness == Brightness.dark
-              ? Color.fromRGBO(179, 204, 161, 1)
-              : const Color.fromARGB(255, 52, 137, 55),
-          buttonBackgroundColor: theme.brightness == Brightness.dark
-              ? Color.fromRGBO(179, 204, 161, 1)
-              : const Color.fromARGB(255, 52, 137, 55),
-          animationDuration: const Duration(milliseconds: 300),
-          items: [
-            Icon(
-              Icons.home,
-              color: theme.brightness == Brightness.dark
-                  ? Color.fromARGB(255, 52, 137, 55)
-                  : Color.fromRGBO(255, 255, 255, 1),
-            ),
-            Icon(
-              Icons.bookmark,
-              color: theme.brightness == Brightness.dark
-                  ? Color.fromARGB(255, 52, 137, 55)
-                  : Color.fromRGBO(255, 255, 255, 1),
-            ),
-            Icon(
-              Icons.info,
-              color: theme.brightness == Brightness.dark
-                  ? Color.fromARGB(255, 52, 137, 55)
-                  : Color.fromRGBO(255, 255, 255, 1),
-            ),
-            Icon(
-              Icons.settings,
-              color: theme.brightness == Brightness.dark
-                  ? Color.fromARGB(255, 52, 137, 55)
-                  : Color.fromRGBO(255, 255, 255, 1),
-            ),
-          ],
-          onTap: (index) {
+      child: WillPopScope(
+        onWillPop: () async {
+          if (pageHistory.length > 1) {
             setState(() {
-              navIndex = index;
-              pageIndex = index;
+              pageHistory.removeLast();
+              pageIndex = pageHistory.last;
             });
-          },
+            return false; // ❌ don't exit app
+          }
+          return true; // ✅ exit app
+        },
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+
+          /// PAGE SWITCHING
+          body: IndexedStack(index: pageIndex, children: pages),
+
+          /// BOTTOM NAVIGATION
+          bottomNavigationBar: CurvedNavigationBar(
+            index: navIndex,
+            height: 60,
+            backgroundColor: Colors.transparent,
+            color: theme.brightness == Brightness.dark
+                ? Color.fromRGBO(179, 204, 161, 1)
+                : const Color.fromARGB(255, 52, 137, 55),
+            buttonBackgroundColor: theme.brightness == Brightness.dark
+                ? Color.fromRGBO(179, 204, 161, 1)
+                : const Color.fromARGB(255, 52, 137, 55),
+            animationDuration: const Duration(milliseconds: 300),
+            items: [
+              Icon(
+                Icons.home,
+                color: theme.brightness == Brightness.dark
+                    ? Color.fromARGB(255, 52, 137, 55)
+                    : Color.fromRGBO(255, 255, 255, 1),
+              ),
+              Icon(
+                Icons.bookmark,
+                color: theme.brightness == Brightness.dark
+                    ? Color.fromARGB(255, 52, 137, 55)
+                    : Color.fromRGBO(255, 255, 255, 1),
+              ),
+              Icon(
+                Icons.info,
+                color: theme.brightness == Brightness.dark
+                    ? Color.fromARGB(255, 52, 137, 55)
+                    : Color.fromRGBO(255, 255, 255, 1),
+              ),
+              Icon(
+                Icons.settings,
+                color: theme.brightness == Brightness.dark
+                    ? Color.fromARGB(255, 52, 137, 55)
+                    : Color.fromRGBO(255, 255, 255, 1),
+              ),
+            ],
+            onTap: (index) {
+              setState(() {
+                navIndex = index;
+                pageHistory = [index]; // reset history when switch tab
+                pageIndex = index;
+              });
+            },
+          ),
         ),
       ),
     );

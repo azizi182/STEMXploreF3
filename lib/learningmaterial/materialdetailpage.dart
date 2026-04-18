@@ -69,28 +69,28 @@ class Materialdetailpage extends StatelessWidget {
                 final newLang = currentLang == 'en' ? 'ms' : 'en';
                 localization.translate(newLang);
               },
-              child: Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.black, width: 1),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
-                      blurRadius: 6,
-                      offset: const Offset(0, 3),
+              child: Column(
+                children: [
+                  ClipOval(
+                    child: Image.asset(
+                      // The flag changes based on isEnglish
+                      isEnglish
+                          ? 'assets/flag/language ms_flag.png'
+                          : 'assets/flag/language us_flag.png',
+                      width: 36,
+                      height: 36,
+                      fit: BoxFit.cover,
                     ),
-                  ],
-                ),
-                child: ClipOval(
-                  child: Image.asset(
-                    isEnglish
-                        ? 'assets/flag/language ms_flag.png'
-                        : 'assets/flag/language us_flag.png',
-                    width: 36,
-                    height: 36,
-                    fit: BoxFit.cover,
                   ),
-                ),
+                  Text(
+                    isEnglish ? 'MS' : 'EN',
+                    style: const TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -153,45 +153,34 @@ class _PageItem extends StatelessWidget {
                   color: Colors.green,
                 ),
                 onPressed: () async {
-                  final confirm = await showDialog<bool>(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: const Text('Confirm Bookmark'),
-                      content: Text(
-                        isBookmarked
-                            ? 'Remove bookmark for this page?'
-                            : 'Bookmark this page?',
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, false),
-                          child: const Text('Cancel'),
-                        ),
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, true),
-                          child: const Text('Yes'),
-                        ),
-                      ],
-                    ),
-                  );
+                  await bookmarkManager.toggleBookmark(pageId);
 
-                  if (confirm == true) {
-                    await bookmarkManager.toggleBookmark(pageId);
+                  try {
+                    await http.post(
+                      Uri.parse('${ipaddress.baseUrl}api/bookmark_page.php'),
+                      body: {
+                        'page_id': pageId,
+                        'bookmark': bookmarkManager.isBookmarked(pageId)
+                            ? 'yes'
+                            : 'no',
+                      },
+                    );
+                  } catch (e) {
+                    print('DB update error: $e');
+                  }
 
-                    // Update database
-                    try {
-                      await http.post(
-                        Uri.parse('${ipaddress.baseUrl}api/bookmark_page.php'),
-                        body: {
-                          'page_id': pageId,
-                          'bookmark': bookmarkManager.isBookmarked(pageId)
-                              ? 'yes'
-                              : 'no',
-                        },
-                      );
-                    } catch (e) {
-                      print('DB update error: $e');
-                    }
+                  if (context.mounted) {
+                    final isAdding = bookmarkManager.isBookmarked(pageId);
+
+                    final isDark =
+                        Theme.of(context).brightness == Brightness.dark;
+
+                    _showBookmarkPopup(
+                      context,
+                      isAdding: isAdding,
+                      isEnglish: isEnglish,
+                      isDark: isDark,
+                    );
                   }
                 },
               ),
@@ -237,6 +226,77 @@ class _PageItem extends StatelessWidget {
       ),
     );
   }
+}
+
+void _showBookmarkPopup(
+  BuildContext context, {
+  required bool isAdding,
+  required bool isEnglish,
+  required bool isDark,
+}) {
+  showDialog(
+    context: context,
+    barrierColor: Colors.black.withOpacity(0.3),
+    builder: (context) {
+      return Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 40),
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(20, 30, 20, 20),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF3D3D3D) : Colors.white,
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                isAdding ? Icons.bookmark_added : Icons.bookmark_remove,
+                size: 55,
+                color: const Color(0xFF4CAF50),
+              ),
+              const SizedBox(height: 16),
+
+              Text(
+                isAdding
+                    ? (isEnglish
+                          ? "Bookmarked successfully"
+                          : "Berjaya ditanda buku")
+                    : (isEnglish ? "Bookmark removed" : "Penanda buku dibuang"),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white : Colors.black,
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF4CAF50),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    "OK",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
 }
 
 /// Video Widget remains the same as before

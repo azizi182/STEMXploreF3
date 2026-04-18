@@ -26,6 +26,7 @@ class _StemInfoDetailPageState extends State<StemInfoDetailPage> {
         : (widget.stemInfo['info_desc_ms']?.toString() ?? '');
     final bool hasDescription = description.trim().isNotEmpty;
     final theme = Theme.of(context);
+
     return GradientBackground(
       child: Scaffold(
         appBar: buildCustomAppBar(
@@ -36,78 +37,79 @@ class _StemInfoDetailPageState extends State<StemInfoDetailPage> {
         ),
         backgroundColor: Colors.transparent,
         extendBodyBehindAppBar: true,
-        body: Stack(
-          children: [
-            Center(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: Container(
-                  margin: const EdgeInsets.fromLTRB(16, 100, 16, 16),
-                  decoration: const BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(20)),
-                    color: Color.fromRGBO(147, 218, 151, 1),
-                  ),
-                  child: Column(
-                    children: [
-                      /// MEDIA CARD (height changes if no description)
-                      _buildMedia(hasDescription),
 
-                      /// SHOW DESCRIPTION ONLY IF EXISTS
-                      if (hasDescription)
-                        Container(
-                          margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                          padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          constraints: const BoxConstraints(minHeight: 220),
-                          child: Text(
-                            description,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              height: 1.7,
-                              color: Colors.black87,
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(8, 100, 8, 20),
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 20),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
             ),
-          ],
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                /// MEDIA (same concept as learning)
+                _buildMedia(),
+
+                const SizedBox(height: 10),
+
+                /// DESCRIPTION
+                if (description.trim().isNotEmpty)
+                  Text(
+                    description,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: Colors.black,
+                      height: 1.6,
+                    ),
+                  ),
+              ],
+            ),
+          ),
         ),
       ),
     );
   }
 
   /// MEDIA BUILDER
-  Widget _buildMedia(bool hasDescription) {
-    final theme = Theme.of(context);
+  Widget _buildMedia() {
     final List mediaList = widget.stemInfo['media'] is List
         ? widget.stemInfo['media']
         : [widget.stemInfo['media']];
-    final double mediaHeight = hasDescription
-        ? 300
-        : MediaQuery.of(context).size.height * 0.7;
 
     if (widget.stemInfo['info_type'] == 'image') {
-      return CarouselSlider(
-        options: CarouselOptions(
-          height: mediaHeight,
-          viewportFraction: 1,
-          autoPlay: true,
-          autoPlayCurve: Curves.easeInOut,
-          enableInfiniteScroll: false,
-          autoPlayAnimationDuration: const Duration(milliseconds: 800),
-        ),
-        items: mediaList.map<Widget>((img) {
-          return _imageItem(context, img, mediaHeight);
+      return Column(
+        children: mediaList.map<Widget>((img) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => FullScreenImagePage(imageUrl: img),
+                  ),
+                );
+              },
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(15),
+                child: Image.network(
+                  img,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                ),
+              ),
+            ),
+          );
         }).toList(),
       );
     } else {
-      return VideoWidget(url: mediaList.first, height: mediaHeight);
+      return VideoWidget(
+        url: mediaList.first,
+        height: 220, // same style as learning
+      );
     }
   }
 
@@ -144,29 +146,28 @@ class _StemInfoDetailPageState extends State<StemInfoDetailPage> {
                 localization.translate(nextLocale);
                 setState(() {}); // rebuild UI
               },
-              child: Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.black, width: 1),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
-                      blurRadius: 6,
-                      offset: const Offset(0, 3),
+              child: Column(
+                children: [
+                  ClipOval(
+                    child: Image.asset(
+                      // The flag changes based on isEnglish
+                      isEnglish
+                          ? 'assets/flag/language ms_flag.png'
+                          : 'assets/flag/language us_flag.png',
+                      width: 36,
+                      height: 36,
+                      fit: BoxFit.cover,
                     ),
-                  ],
-                ),
-                child: ClipOval(
-                  child: Image.asset(
-                    // The flag changes based on isEnglish
-                    isEnglish
-                        ? 'assets/flag/language ms_flag.png'
-                        : 'assets/flag/language us_flag.png',
-                    width: 36,
-                    height: 36,
-                    fit: BoxFit.cover,
                   ),
-                ),
+                  Text(
+                    isEnglish ? 'MS' : 'EN',
+                    style: const TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

@@ -32,8 +32,10 @@ class _QuizStartPageState extends State<QuizStartPage> {
   List<bool> showResults = [];
   List<String?> correctAnswers = [];
   List<bool> isCorrectList = [];
+  List<List<Map<String, dynamic>>> shuffledOptions = [];
+
   List<Map<String, dynamic>> getOptions(Map question, bool isEnglish) {
-    return [
+    List<Map<String, dynamic>> options = [
       {
         "text": isEnglish ? question['opt_a_en'] : question['opt_a_ms'],
         "image": question['opt_a_image'],
@@ -51,6 +53,10 @@ class _QuizStartPageState extends State<QuizStartPage> {
         "image": question['opt_d_image'],
       },
     ].where((opt) => opt['text'] != null && opt['text']!.isNotEmpty).toList();
+
+    options.shuffle(); // 🔥 RANDOMIZE ANSWERS
+
+    return options;
   }
 
   Future<void> fetchQuestions() async {
@@ -66,6 +72,13 @@ class _QuizStartPageState extends State<QuizStartPage> {
 
       setState(() {
         questions = data;
+        questions.shuffle();
+        shuffledOptions = questions.map((q) {
+          var opts = getOptions(q, true); // temp lang
+          opts.shuffle();
+          return opts;
+        }).toList();
+
         selectedAnswers = List<String?>.filled(questions.length, null);
 
         showResults = List<bool>.filled(questions.length, false);
@@ -211,7 +224,7 @@ class _QuizStartPageState extends State<QuizStartPage> {
 
     final options = isLoading || questions.isEmpty
         ? []
-        : getOptions(questions[currentQuestion], isEnglish);
+        : shuffledOptions[currentQuestion];
 
     return GradientBackground(
       child: Scaffold(
@@ -507,28 +520,28 @@ AppBar _buildAppBar(BuildContext context, bool isEnglish, String title) {
             final newLang = currentLang == 'en' ? 'ms' : 'en';
             localization.translate(newLang);
           },
-          child: Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.black, width: 1),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
-                  blurRadius: 6,
-                  offset: const Offset(0, 3),
+          child: Column(
+            children: [
+              ClipOval(
+                child: Image.asset(
+                  // The flag changes based on isEnglish
+                  isEnglish
+                      ? 'assets/flag/language ms_flag.png'
+                      : 'assets/flag/language us_flag.png',
+                  width: 36,
+                  height: 36,
+                  fit: BoxFit.cover,
                 ),
-              ],
-            ),
-            child: ClipOval(
-              child: Image.asset(
-                isEnglish
-                    ? 'assets/flag/language ms_flag.png'
-                    : 'assets/flag/language us_flag.png',
-                width: 36,
-                height: 36,
-                fit: BoxFit.cover,
               ),
-            ),
+              Text(
+                isEnglish ? 'MS' : 'EN',
+                style: const TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+            ],
           ),
         ),
       ],

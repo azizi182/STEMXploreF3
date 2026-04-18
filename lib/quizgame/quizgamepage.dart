@@ -54,35 +54,158 @@ class _QuizgamepageState extends State<Quizgamepage> {
   String getSubjectCover({
     required String subjectEn,
     required String subjectMs,
+    required int quizId,
     required bool isEnglish,
   }) {
     if (subjectEn == "Science" || subjectMs == "Sains") {
-      return isEnglish
-          ? "assets/images/sains_cover_en.jpg"
-          : "assets/images/sains_cover.jpg";
+      switch (quizId) {
+        case 1:
+          return isEnglish
+              ? "assets/images/cover_chap/sn/chap1.png"
+              : "assets/images/cover_chap/sn/chap1ms.png";
+
+        case 3:
+          return isEnglish
+              ? "assets/images/cover_chap/sn/chap2.png"
+              : "assets/images/cover_chap/sn/chap2ms.png";
+
+        case 4:
+          return isEnglish
+              ? "assets/images/cover_chap/sn/chap3.png"
+              : "assets/images/cover_chap/sn/chap3ms.png";
+
+        case 5:
+          return isEnglish
+              ? "assets/images/cover_chap/sn/chap4.png"
+              : "assets/images/cover_chap/sn/chap4ms.png";
+
+        case 6:
+          return isEnglish
+              ? "assets/images/cover_chap/sn/chap5.png"
+              : "assets/images/cover_chap/sn/chap5ms.png";
+
+        case 7:
+          return isEnglish
+              ? "assets/images/cover_chap/sn/chap6.png"
+              : "assets/images/cover_chap/sn/chap6ms.png";
+
+        case 8:
+          return isEnglish
+              ? "assets/images/cover_chap/sn/chap7.png"
+              : "assets/images/cover_chap/sn/chap7ms.png";
+
+        case 9:
+          return isEnglish
+              ? "assets/images/cover_chap/sn/chap8.png"
+              : "assets/images/cover_chap/sn/chap8ms.png";
+
+        case 10:
+          return isEnglish
+              ? "assets/images/cover_chap/sn/chap9.png"
+              : "assets/images/cover_chap/sn/chap9ms.png";
+
+        case 11:
+          return isEnglish
+              ? "assets/images/cover_chap/sn/chap10.png"
+              : "assets/images/cover_chap/sn/chap10ms.png";
+
+        default:
+          return isEnglish
+              ? "assets/images/cover_chap/sn/chap_default.png"
+              : "assets/images/cover_chap/sn/chap_defaultms.png";
+      }
     }
 
     if (subjectEn == "Mathematics" || subjectMs == "Matematik") {
-      return isEnglish
-          ? "assets/images/mt_cover_en.jpg"
-          : "assets/images/mt_cover.jpg";
+      switch (quizId) {
+        case 2:
+          return isEnglish
+              ? "assets/images/cover_chap/mt/chap1.png"
+              : "assets/images/cover_chap/mt/chap1ms.png";
+
+        case 12:
+          return isEnglish
+              ? "assets/images/cover_chap/mt/chap2.png"
+              : "assets/images/cover_chap/mt/chap2ms.png";
+        case 13:
+          return isEnglish
+              ? "assets/images/cover_chap/mt/chap3.png"
+              : "assets/images/cover_chap/mt/chap3ms.png";
+
+        case 14:
+          return isEnglish
+              ? "assets/images/cover_chap/mt/chap4.png"
+              : "assets/images/cover_chap/mt/chap4ms.png";
+
+        case 15:
+          return isEnglish
+              ? "assets/images/cover_chap/mt/chap5.png"
+              : "assets/images/cover_chap/mt/chap5ms.png";
+
+        case 16:
+          return isEnglish
+              ? "assets/images/cover_chap/mt/chap6.png"
+              : "assets/images/cover_chap/mt/chap6ms.png";
+
+        case 17:
+          return isEnglish
+              ? "assets/images/cover_chap/mt/chap7.png"
+              : "assets/images/cover_chap/mt/chap7ms.png";
+
+        case 18:
+          return isEnglish
+              ? "assets/images/cover_chap/mt/chap8.png"
+              : "assets/images/cover_chap/mt/chap8ms.png";
+
+        case 19:
+          return isEnglish
+              ? "assets/images/cover_chap/mt/chap9.png"
+              : "assets/images/cover_chap/mt/chap9ms.png";
+      }
     }
 
     if (subjectEn == "Fundamentals of Computer Science" ||
         subjectMs == "Asas Sains Komputer") {
-      return isEnglish
-          ? "assets/images/ask_cover.jpg"
-          : "assets/images/ask_cover.jpg";
+      switch (quizId) {
+        case 20:
+          return isEnglish
+              ? "assets/images/cover_chap/ask/chap1.png"
+              : "assets/images/cover_chap/ask/chap1ms.png";
+        case 21:
+          return isEnglish
+              ? "assets/images/cover_chap/ask/chap2.png"
+              : "assets/images/cover_chap/ask/chap2ms.png";
+        case 22:
+          return isEnglish
+              ? "assets/images/cover_chap/ask/chap3.png"
+              : "assets/images/cover_chap/ask/chap3ms.png";
+        case 23:
+          return isEnglish
+              ? "assets/images/cover_chap/ask/chap4.png"
+              : "assets/images/cover_chap/ask/chap4ms.png";
+      }
     }
 
     if (subjectEn == "Design And Technology" ||
         subjectMs == "Reka Bentuk Dan Teknologi") {
-      return isEnglish
-          ? "assets/images/rbt_cover.jpg"
-          : "assets/images/rbt_cover.jpg";
+      switch (quizId) {
+        case 24:
+          return isEnglish
+              ? "assets/images/cover_chap/rbt/chap1.png"
+              : "assets/images/cover_chap/rbt/chap1ms.png";
+        case 25:
+          return isEnglish
+              ? "assets/images/cover_chap/rbt/chap2.png"
+              : "assets/images/cover_chap/rbt/chap2ms.png";
+        case 26:
+          return isEnglish
+              ? "assets/images/cover_chap/rbt/chap3.png"
+              : "assets/images/cover_chap/rbt/chap3ms.png";
+      }
     }
-
-    return "assets/images/default_cover.jpg";
+    return isEnglish
+        ? "assets/images/cover_chap/default/chap_default.png"
+        : "assets/images/cover_chap/default/chap_defaultms.png";
   }
 
   @override
@@ -173,6 +296,9 @@ class _QuizgamepageState extends State<Quizgamepage> {
                               imgPath: getSubjectCover(
                                 subjectEn: quiz['quiz_subject_en'],
                                 subjectMs: quiz['quiz_subject_ms'],
+                                quizId:
+                                    int.tryParse(quiz['quiz_id'].toString()) ??
+                                    0,
                                 isEnglish: isEnglish,
                               ),
                               isEnglish: isEnglish,
@@ -220,15 +346,29 @@ class _QuizgamepageState extends State<Quizgamepage> {
           },
           child: Padding(
             padding: const EdgeInsets.only(right: 16),
-            child: ClipOval(
-              child: Image.asset(
-                isEnglish
-                    ? 'assets/flag/language ms_flag.png'
-                    : 'assets/flag/language us_flag.png',
-                width: 36,
-                height: 36,
-                fit: BoxFit.cover,
-              ),
+
+            child: Column(
+              children: [
+                ClipOval(
+                  child: Image.asset(
+                    // The flag changes based on isEnglish
+                    isEnglish
+                        ? 'assets/flag/language ms_flag.png'
+                        : 'assets/flag/language us_flag.png',
+                    width: 36,
+                    height: 36,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                Text(
+                  isEnglish ? 'MS' : 'EN',
+                  style: const TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+              ],
             ),
           ),
         ),

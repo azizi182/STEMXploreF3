@@ -2,5 +2,6 @@
     "cSpell.words": [
         "Bookmarkpage",
         "Settingspage"
-    ]
+    ],
+    "cmake.ignoreCMakeListsMissing": true
 }

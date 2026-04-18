@@ -131,26 +131,45 @@ class _SettingspageState extends State<Settingspage> {
       actions: [
         GestureDetector(
           onTap: () {
-            final FlutterLocalization localization =
-                FlutterLocalization.instance;
-            final String currentLang =
+            final localization = FlutterLocalization.instance;
+
+            final currentLang =
                 localization.currentLocale?.languageCode ?? 'en';
-            final String nextLocale = currentLang == 'en' ? 'ms' : 'en';
-            localization.translate(nextLocale);
+            final newLang = currentLang == 'en' ? 'ms' : 'en';
+
+            localization.translate(newLang);
+
             setState(() {});
           },
-          child: Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: ClipOval(
-              child: Image.asset(
-                isEnglish
-                    ? 'assets/flag/language ms_flag.png'
-                    : 'assets/flag/language us_flag.png',
-                width: 36,
-                height: 36,
-                fit: BoxFit.cover,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // 🔵 Circle (ONLY flag inside)
+              Container(
+                padding: const EdgeInsets.all(12),
+
+                child: ClipOval(
+                  child: Image.asset(
+                    isEnglish
+                        ? 'assets/flag/language ms_flag.png'
+                        : 'assets/flag/language us_flag.png',
+                    width: 40,
+                    height: 40,
+                    fit: BoxFit.fill,
+                  ),
+                ),
               ),
-            ),
+
+              // 🔤 Text BELOW the circle
+              Text(
+                isEnglish ? 'MS' : 'EN',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+            ],
           ),
         ),
       ],

@@ -33,3 +33,7 @@ flutter:
   assets:
     - assets/images/
     - assets/flag/
+    - assets/images/cover_chap/sn/
+    - assets/images/cover_chap/mt/
+    - assets/images/cover_chap/ask/
+    - assets/images/cover_chap/rbt/

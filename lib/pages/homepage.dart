@@ -32,14 +32,21 @@ class _HomepageState extends State<Homepage> {
   }
 
   Future<void> fetchStemHighlights() async {
-    final response = await http.get(
-      Uri.parse('${ipaddress.baseUrl}api/get_stem_highlight.php'),
-    );
-
-    if (response.statusCode == 200) {
-      setState(() {
-        highlights = json.decode(response.body);
-      });
+    try {
+      final response = await http.get(
+        Uri.parse('${ipaddress.baseUrl}api/get_stem_highlight.php'),
+      );
+      print("STATUS: ${response.statusCode}");
+      // print('${ipaddress.baseUrl}api/get_stem_highlight.php');
+      // print("BODY: ${response.body}");
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          highlights = data;
+        });
+      }
+    } catch (e) {
+      print("Error fetching STEM highlights: $e");
     }
   }
 
@@ -140,6 +147,7 @@ class _HomepageState extends State<Homepage> {
             ],
           ),
           const Divider(thickness: 3, height: 20),
+
           Text(
             _getTranslatedText('highlights', isEnglish),
             style: theme.textTheme.titleMedium?.copyWith(
@@ -152,69 +160,129 @@ class _HomepageState extends State<Homepage> {
           /// STEM HIGHLIGHT CAROUSEL
           highlights.isEmpty
               ? const Center(child: CircularProgressIndicator())
-              : CarouselSlider(
-                  items: highlights.map((item) {
-                    return GestureDetector(
-                      onTap: () => widget.onHighlightTap(item),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Stack(
-                          fit: StackFit.expand,
-                          children: [
-                            Image.network(item['media'][0], fit: BoxFit.fill),
-                            Container(
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    isDark
-                                        ? Colors.black.withOpacity(0.6)
-                                        : Colors.black.withOpacity(0.5),
-                                    Colors.transparent,
-                                  ],
-                                  begin: Alignment.bottomCenter,
-                                  end: Alignment.topCenter,
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              bottom: 20,
-                              left: 20,
-                              child: Text(
-                                isEnglish
-                                    ? item['highlight_title_en']
-                                    : item['highlight_title_ms'],
-                                style: theme.textTheme.titleMedium?.copyWith(
-                                  color: Colors.white,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  shadows: const [
-                                    Shadow(
-                                      color: Colors.black45,
-                                      offset: Offset(1, 1),
-                                      blurRadius: 4,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
+              : SizedBox(
+                  height: 170,
+                  child: PageView.builder(
+                    controller: PageController(viewportFraction: 0.9),
+                    itemCount: highlights.length,
+                    itemBuilder: (context, index) {
+                      final item = highlights[index];
+                      final mediaList = item['media'] ?? [];
+
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
                         ),
-                      ),
-                    );
-                  }).toList(),
-                  options: CarouselOptions(
-                    height: 180,
-                    autoPlay: true,
-                    enlargeCenterPage: true,
-                    viewportFraction: 0.85,
-                    autoPlayCurve: Curves.fastOutSlowIn,
-                    autoPlayAnimationDuration: const Duration(
-                      milliseconds: 800,
-                    ),
-                    onPageChanged: (index, reason) {
-                      setState(() {
-                        currentHighlightIndex = index;
-                      });
+                        child: GestureDetector(
+                          onTap: () => widget.onHighlightTap(item),
+
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: isDark
+                                  ? const Color(0xFF535252)
+                                  : Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: isDark
+                                  ? []
+                                  : [
+                                      BoxShadow(
+                                        color: Colors.black12,
+                                        blurRadius: 6,
+                                        offset: Offset(0, 3),
+                                      ),
+                                    ],
+                            ),
+
+                            child: Row(
+                              children: [
+                                /// LEFT IMAGE
+                                SizedBox(
+                                  width: 130,
+                                  height: double.infinity,
+                                  child: ClipRRect(
+                                    borderRadius: const BorderRadius.horizontal(
+                                      left: Radius.circular(16),
+                                    ),
+                                    child: Image.network(
+                                      (mediaList != null &&
+                                              mediaList.isNotEmpty)
+                                          ? mediaList[0]
+                                          : 'https://via.placeholder.com/150',
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ),
+
+                                /// RIGHT TEXT
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(10),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        /// TITLE
+                                        Text(
+                                          isEnglish
+                                              ? item['highlight_title_en']
+                                              : item['highlight_title_ms'],
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 15,
+                                            color: isDark
+                                                ? Colors.white
+                                                : Colors.black,
+                                          ),
+                                        ),
+
+                                        const SizedBox(height: 6),
+
+                                        /// SUBTITLE (if you have)
+                                        Text(
+                                          isEnglish
+                                              ? item['highlight_subtitle_en'] ??
+                                                    ''
+                                              : item['highlight_subtitle_ms'] ??
+                                                    '',
+                                          maxLines: 3,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            color: isDark
+                                                ? Colors.white60
+                                                : Colors.black54,
+                                          ),
+                                        ),
+
+                                        const Spacer(),
+
+                                        /// READ MORE
+                                        Align(
+                                          alignment: Alignment.bottomRight,
+                                          child: Text(
+                                            _getTranslatedText(
+                                              'readMore',
+                                              isEnglish,
+                                            ),
+                                            style: TextStyle(
+                                              color: Colors.red,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 13,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
                     },
                   ),
                 ),
@@ -282,43 +350,42 @@ class _HomepageState extends State<Homepage> {
 
           // Right Side: Flag Toggle
           GestureDetector(
-            onTap: () async {
+            onTap: () {
               final localization = FlutterLocalization.instance;
 
-              // Toggle language
               final currentLang =
                   localization.currentLocale?.languageCode ?? 'en';
               final newLang = currentLang == 'en' ? 'ms' : 'en';
 
               localization.translate(newLang);
 
-              setState(() {}); // rebuild UI
+              setState(() {});
             },
-            child: Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: theme.brightness == Brightness.dark
-                    ? Colors.grey[800]
-                    : Colors.white,
-                border: Border.all(color: Colors.black, width: 1),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    blurRadius: 6,
-                    offset: const Offset(0, 3),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // 🔵 Circle (ONLY flag inside)
+                ClipOval(
+                  child: Image.asset(
+                    isEnglish
+                        ? 'assets/flag/language ms_flag.png'
+                        : 'assets/flag/language us_flag.png',
+                    width: 40,
+                    height: 40,
+                    fit: BoxFit.fill,
                   ),
-                ],
-              ),
-              child: ClipOval(
-                child: Image.asset(
-                  isEnglish
-                      ? 'assets/flag/language ms_flag.png'
-                      : 'assets/flag/language us_flag.png',
-                  width: 36,
-                  height: 36,
-                  fit: BoxFit.cover,
                 ),
-              ),
+
+                // 🔤 Text BELOW the circle
+                Text(
+                  isEnglish ? 'MS' : 'EN',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
