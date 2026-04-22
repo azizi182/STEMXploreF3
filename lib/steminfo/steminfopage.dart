@@ -2,11 +2,8 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_localization/flutter_localization.dart';
-//import 'package:stemxplore/gradient_background.dart';
-import 'package:http/http.dart' as http;
-import 'package:stemxplore/ipaddress.dart';
+import 'package:stemxplore/database/dao/info_dao.dart';
 import 'package:stemxplore/theme_provider.dart';
-import 'dart:convert';
 import 'package:video_thumbnail/video_thumbnail.dart';
 
 class Steminfopage extends StatefulWidget {
@@ -29,24 +26,17 @@ class _SteminfopageState extends State<Steminfopage> {
 
   Future<void> fetchStemInfo() async {
     try {
-      final response = await http.get(
-        Uri.parse('${ipaddress.baseUrl}api/get_stem_info.php'),
-      );
+      final data = await StemInfoDao.getAllInfo();
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        setState(() {
-          stemInfoList = data;
-          isLoading = false;
-        });
-      } else {
-        throw Exception('Failed to load STEM info');
-      }
+      setState(() {
+        stemInfoList = data;
+        isLoading = false;
+      });
     } catch (e) {
       setState(() {
         isLoading = false;
       });
-      print(e);
+      print("DB Error: $e");
     }
   }
 
@@ -54,14 +44,6 @@ class _SteminfopageState extends State<Steminfopage> {
     return file.toLowerCase().endsWith('.mp4') ||
         file.toLowerCase().endsWith('.mov') ||
         file.toLowerCase().endsWith('.avi');
-  }
-
-  String _getTranslatedText(String key, bool isEnglish) {
-    final Map<String, Map<String, String>> localizedValues = {
-      'stem_info': {'en': 'STEM Info', 'ms': 'Info STEM'},
-      // Add more key-value pairs as needed
-    };
-    return localizedValues[key]?[isEnglish ? 'en' : 'ms'] ?? key;
   }
 
   //thumbnail generation for video
@@ -84,7 +66,7 @@ class _SteminfopageState extends State<Steminfopage> {
     final FlutterLocalization localization = FlutterLocalization.instance;
     final String currentLang = localization.currentLocale?.languageCode ?? 'en';
     final bool isEnglish = currentLang == 'en';
-    final theme = Theme.of(context);
+
     return GradientBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
@@ -110,6 +92,16 @@ class _SteminfopageState extends State<Steminfopage> {
                           final String fileUrl = mediaList.isNotEmpty
                               ? mediaList[0]
                               : '';
+
+                          if (fileUrl.isEmpty) {
+                            return Container(
+                              height: 115,
+                              color: Colors.grey[300],
+                              child: const Center(
+                                child: Icon(Icons.broken_image),
+                              ),
+                            );
+                          }
 
                           return GestureDetector(
                             onTap: () {
@@ -200,7 +192,7 @@ class _SteminfopageState extends State<Steminfopage> {
                                                 ),
                                               ],
                                             )
-                                          : Image.network(
+                                          : Image.asset(
                                               fileUrl,
                                               fit: BoxFit.cover,
                                               width: double.infinity,

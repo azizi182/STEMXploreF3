@@ -1,12 +1,10 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_localization/flutter_localization.dart';
-import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
-import 'package:stemxplore/bookmarkmanager.dart';
-import 'package:stemxplore/ipaddress.dart';
-import 'package:video_player/video_player.dart';
+import 'package:stemxplore/database/dao/bookmark_dao.dart';
+import 'package:stemxplore/database/db_helper.dart';
 import 'package:stemxplore/theme_provider.dart';
+import 'package:stemxplore/bookmarkmanager.dart';
 
 class Materialdetailpage extends StatelessWidget {
   final Map learningMaterial;
@@ -22,7 +20,7 @@ class Materialdetailpage extends StatelessWidget {
     final String title = isEnglish
         ? (learningMaterial['learning_title_en']?.toString() ?? '')
         : (learningMaterial['learning_title_ms']?.toString() ?? '');
-    final theme = Theme.of(context);
+
     return GradientBackground(
       child: Scaffold(
         appBar: _buildAppBar(context, isEnglish, title),
@@ -103,25 +101,35 @@ class Materialdetailpage extends StatelessWidget {
   }
 }
 
-class _PageItem extends StatelessWidget {
+class _PageItem extends StatefulWidget {
   final Map page;
-  const _PageItem({super.key, required this.page});
+
+  const _PageItem({required this.page});
+
+  @override
+  State<_PageItem> createState() => _PageItemState();
+}
+
+class _PageItemState extends State<_PageItem> {
+  Future<bool> _isBookmarked() async {
+    final db = await DBHelper.getDB();
+    final result = await db.query(
+      'stem_learning_page',
+      where: 'page_id = ? AND bookmark = ?',
+      whereArgs: [widget.page['page_id'], 'yes'],
+    );
+    return result.isNotEmpty;
+  }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final FlutterLocalization localization = FlutterLocalization.instance;
     final bool isEnglish =
         (localization.currentLocale?.languageCode ?? 'en') == 'en';
-    final pageId = page['page_id'];
-
-    // Listen to BookmarkManager for changes
-    final bookmarkManager = context.watch<BookmarkManager>();
-    final isBookmarked = bookmarkManager.isBookmarked(pageId);
 
     final description = isEnglish
-        ? page['page_desc_en'] ?? ''
-        : page['page_desc_ms'] ?? '';
+        ? widget.page['page_desc_en'] ?? ''
+        : widget.page['page_desc_ms'] ?? '';
 
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
@@ -139,7 +147,9 @@ class _PageItem extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  isEnglish ? page['page_title_en'] : page['page_title_ms'],
+                  isEnglish
+                      ? (widget.page['page_title_en'] ?? '')
+                      : (widget.page['page_title_ms'] ?? ''),
                   style: const TextStyle(
                     color: Colors.black,
                     fontSize: 18,
@@ -147,41 +157,40 @@ class _PageItem extends StatelessWidget {
                   ),
                 ),
               ),
-              IconButton(
-                icon: Icon(
-                  isBookmarked ? Icons.bookmark : Icons.bookmark_border,
-                  color: Colors.green,
-                ),
-                onPressed: () async {
-                  await bookmarkManager.toggleBookmark(pageId);
 
-                  try {
-                    await http.post(
-                      Uri.parse('${ipaddress.baseUrl}api/bookmark_page.php'),
-                      body: {
-                        'page_id': pageId,
-                        'bookmark': bookmarkManager.isBookmarked(pageId)
-                            ? 'yes'
-                            : 'no',
-                      },
-                    );
-                  } catch (e) {
-                    print('DB update error: $e');
-                  }
+              /// ✅ FUTURE BUILDER HERE
+              FutureBuilder<bool>(
+                future: _isBookmarked(),
+                builder: (context, snapshot) {
+                  final isBookmarked = snapshot.data ?? false;
 
-                  if (context.mounted) {
-                    final isAdding = bookmarkManager.isBookmarked(pageId);
+                  return IconButton(
+                    icon: Icon(
+                      isBookmarked ? Icons.bookmark : Icons.bookmark_border,
+                      color: Colors.green,
+                    ),
+                    onPressed: () async {
+                      /// toggle bookmark in DB
+                      await LearningPageDao.updateBookmark(
+                        widget.page['page_id'],
+                        isBookmarked ? 'no' : 'yes',
+                      );
 
-                    final isDark =
-                        Theme.of(context).brightness == Brightness.dark;
+                      /// refresh THIS widget only
+                      setState(() {});
 
-                    _showBookmarkPopup(
-                      context,
-                      isAdding: isAdding,
-                      isEnglish: isEnglish,
-                      isDark: isDark,
-                    );
-                  }
+                      /// popup
+                      if (context.mounted) {
+                        _showBookmarkPopup(
+                          context,
+                          isAdding: !isBookmarked,
+                          isEnglish: isEnglish,
+                          isDark:
+                              Theme.of(context).brightness == Brightness.dark,
+                        );
+                      }
+                    },
+                  );
                 },
               ),
             ],
@@ -191,8 +200,12 @@ class _PageItem extends StatelessWidget {
 
           /// MEDIA
           Column(
-            children: (page['media'] ?? []).map<Widget>((media) {
-              if (media['type'] == 'image') {
+            children: ((widget.page['media'] as List?) ?? []).map<Widget>((
+              media,
+            ) {
+              final m = Map<String, dynamic>.from(media);
+
+              if (m['type'] == 'image') {
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 10),
                   child: GestureDetector(
@@ -201,19 +214,19 @@ class _PageItem extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder: (context) =>
-                              FullScreenImagePage(imageUrl: media['url']),
+                              FullScreenImagePage(imageUrl: m['url']),
                         ),
                       );
                     },
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(15),
-                      child: Image.network(media['url'], fit: BoxFit.cover),
+                      child: Image.asset(m['url'], fit: BoxFit.cover),
                     ),
                   ),
                 );
-              } else {
-                return VideoWidget(url: media['url'], isLarge: false);
               }
+
+              return const SizedBox.shrink();
             }).toList(),
           ),
 
@@ -236,6 +249,7 @@ void _showBookmarkPopup(
 }) {
   showDialog(
     context: context,
+    // ignore: deprecated_member_use
     barrierColor: Colors.black.withOpacity(0.3),
     builder: (context) {
       return Dialog(
@@ -299,89 +313,6 @@ void _showBookmarkPopup(
   );
 }
 
-/// Video Widget remains the same as before
-class VideoWidget extends StatefulWidget {
-  final String url;
-  final bool isLarge;
-  const VideoWidget({super.key, required this.url, required this.isLarge});
-
-  @override
-  State<VideoWidget> createState() => _VideoWidgetState();
-}
-
-class _VideoWidgetState extends State<VideoWidget> {
-  late VideoPlayerController controller;
-  bool isDisposed = false;
-
-  @override
-  void initState() {
-    super.initState();
-    controller = VideoPlayerController.networkUrl(Uri.parse(widget.url))
-      ..initialize().then((_) {
-        if (!isDisposed && mounted) setState(() {});
-      });
-    controller.setLooping(false);
-    controller.setVolume(1.0);
-    controller.addListener(() {
-      if (!isDisposed && mounted) setState(() {});
-    });
-  }
-
-  @override
-  void dispose() {
-    isDisposed = true;
-    controller.pause();
-    controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.fromLTRB(10, 24, 10, 20),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Container(
-          width: double.infinity,
-          height: widget.isLarge ? 450 : 200,
-          color: Colors.grey.shade200,
-          child: controller.value.isInitialized
-              ? Stack(
-                  alignment: Alignment.bottomLeft,
-                  children: [
-                    FittedBox(
-                      child: SizedBox(
-                        width: controller.value.size.width,
-                        height: controller.value.size.height,
-                        child: VideoPlayer(controller),
-                      ),
-                    ),
-                    IconButton(
-                      iconSize: 30,
-                      color: Colors.white,
-                      icon: Icon(
-                        controller.value.isPlaying
-                            ? Icons.pause
-                            : Icons.play_arrow,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          controller.value.isPlaying
-                              ? controller.pause()
-                              : controller.play();
-                        });
-                      },
-                    ),
-                  ],
-                )
-              : const Center(child: CircularProgressIndicator()),
-        ),
-      ),
-    );
-  }
-}
-
 class FullScreenImagePage extends StatelessWidget {
   final String imageUrl;
 
@@ -396,13 +327,10 @@ class FullScreenImagePage extends StatelessWidget {
           Center(
             child: InteractiveViewer(
               maxScale: 5.0, // allow pinch zoom
-              child: Image.network(
+              child: Image.asset(
                 imageUrl,
                 fit: BoxFit.contain,
-                loadingBuilder: (context, child, progress) {
-                  if (progress == null) return child;
-                  return const Center(child: CircularProgressIndicator());
-                },
+
                 errorBuilder: (context, error, stack) {
                   return const Center(
                     child: Icon(

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter_localization/flutter_localization.dart';
 import 'package:stemxplore/theme_provider.dart';
 import 'package:video_player/video_player.dart';
@@ -21,7 +20,6 @@ class _StemHighlightState extends State<StemHighlight> {
     final String description = isEnglish
         ? (widget.data['highlight_desc_en']?.toString() ?? '')
         : (widget.data['highlight_desc_ms']?.toString() ?? '');
-    final bool hasDescription = description.trim().isNotEmpty;
 
     return GradientBackground(
       child: Scaffold(
@@ -90,7 +88,7 @@ class _StemHighlightState extends State<StemHighlight> {
               },
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(15),
-                child: Image.network(
+                child: Image.asset(
                   img,
                   width: double.infinity,
                   fit: BoxFit.cover,
@@ -184,13 +182,9 @@ Widget _imageItem(BuildContext context, String url, double height) {
 
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20),
-        child: Image.network(
+        child: Image.asset(
           url,
           fit: BoxFit.cover,
-          loadingBuilder: (context, child, loadingProgress) {
-            if (loadingProgress == null) return child;
-            return const Center(child: CircularProgressIndicator());
-          },
           errorBuilder: (context, error, stackTrace) {
             return const Center(child: Icon(Icons.broken_image, size: 40));
           },
@@ -223,7 +217,7 @@ class _VideoWidgetState extends State<VideoWidget> {
   @override
   void initState() {
     super.initState();
-    controller = VideoPlayerController.networkUrl(Uri.parse(widget.url))
+    controller = VideoPlayerController.asset(widget.url)
       ..initialize().then((_) {
         if (!isDisposed && mounted) setState(() {});
       });
@@ -306,13 +300,10 @@ class FullScreenImagePage extends StatelessWidget {
           Center(
             child: InteractiveViewer(
               maxScale: 5.0, // allow pinch zoom
-              child: Image.network(
+              child: Image.asset(
                 imageUrl,
                 fit: BoxFit.contain,
-                loadingBuilder: (context, child, progress) {
-                  if (progress == null) return child;
-                  return const Center(child: CircularProgressIndicator());
-                },
+
                 errorBuilder: (context, error, stack) {
                   return const Center(
                     child: Icon(

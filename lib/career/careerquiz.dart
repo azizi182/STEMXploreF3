@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localization/flutter_localization.dart';
+import 'package:stemxplore/database/dao/career_question_dao.dart';
 import 'package:stemxplore/theme_provider.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'package:stemxplore/ipaddress.dart';
-import 'package:stemxplore/career/careerresult.dart';
 
 class Careerquiz extends StatefulWidget {
   final Function(int) onFinishCareerQuiz;
@@ -50,19 +47,19 @@ class _CareerquizState extends State<Careerquiz> {
   List<int?> selectedAnswers = [];
 
   Future<void> fetchQuestions() async {
-    final response = await http.get(
-      Uri.parse("${ipaddress.baseUrl}api/get_career_question.php"),
-    );
-    //print(response.body);
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
+    try {
+      final data = await CareerQuestionDao.getAllQuestions();
 
-      if (!mounted) return; // safety check before setState
+      if (!mounted) return;
+
       setState(() {
         questions = data;
         selectedAnswers = List<int?>.filled(questions.length, null);
         isLoading = false;
       });
+    } catch (e) {
+      print("Career quiz DB error: $e");
+      setState(() => isLoading = false);
     }
   }
 

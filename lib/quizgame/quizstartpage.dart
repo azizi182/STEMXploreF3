@@ -1,10 +1,6 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_localization/flutter_localization.dart';
-import 'package:http/http.dart' as http;
-import 'package:stemxplore/ipaddress.dart';
-import 'package:stemxplore/quizgame/resultpage.dart';
+import 'package:stemxplore/database/dao/quiz_question_dao.dart';
 import 'package:stemxplore/theme_provider.dart';
 
 class QuizStartPage extends StatefulWidget {
@@ -26,7 +22,7 @@ class QuizStartPage extends StatefulWidget {
 class _QuizStartPageState extends State<QuizStartPage> {
   int currentQuestion = 0;
   int score = 0;
-  List questions = [];
+  List<Map<String, dynamic>> questions = [];
   List<String?> selectedAnswers = [];
   bool isLoading = true;
   List<bool> showResults = [];
@@ -34,7 +30,10 @@ class _QuizStartPageState extends State<QuizStartPage> {
   List<bool> isCorrectList = [];
   List<List<Map<String, dynamic>>> shuffledOptions = [];
 
-  List<Map<String, dynamic>> getOptions(Map question, bool isEnglish) {
+  List<Map<String, dynamic>> getOptions(
+    Map<String, dynamic> question,
+    bool isEnglish,
+  ) {
     List<Map<String, dynamic>> options = [
       {
         "text": isEnglish ? question['opt_a_en'] : question['opt_a_ms'],
@@ -60,30 +59,41 @@ class _QuizStartPageState extends State<QuizStartPage> {
   }
 
   Future<void> fetchQuestions() async {
-    final response = await http.get(
-      Uri.parse(
-        '${ipaddress.baseUrl}api/get_quiz_question.php?quiz_id=${widget.quizId}',
-      ),
-    );
-    //print("QUIZ ID SENT: ${widget.quizId}");
-    //print("RESPONSE: ${response.body}");
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
+    final FlutterLocalization localization = FlutterLocalization.instance;
+    final isEnglish = localization.currentLocale?.languageCode == 'en';
+    try {
+      final data = await QuizDetailDao.getQuizWithQuestions(
+        int.parse(widget.quizId),
+      );
 
       setState(() {
         questions = data;
+        questions = List<Map<String, dynamic>>.from(data);
         questions.shuffle();
+
+        if (questions.isEmpty) {
+          isLoading = false;
+          return;
+        }
+
         shuffledOptions = questions.map((q) {
-          var opts = getOptions(q, true); // temp lang
+          var opts = getOptions(q, isEnglish);
           opts.shuffle();
           return opts;
         }).toList();
 
         selectedAnswers = List<String?>.filled(questions.length, null);
-
         showResults = List<bool>.filled(questions.length, false);
         correctAnswers = List<String?>.filled(questions.length, null);
         isCorrectList = List<bool>.filled(questions.length, false);
+
+        isLoading = false;
+        print("QUESTIONS FROM DB: $data");
+      });
+    } catch (e) {
+      print("DB error: $e");
+
+      setState(() {
         isLoading = false;
       });
     }
@@ -207,24 +217,43 @@ class _QuizStartPageState extends State<QuizStartPage> {
     final FlutterLocalization localization = FlutterLocalization.instance;
     final String currentLang = localization.currentLocale?.languageCode ?? 'en';
     final bool isEnglish = currentLang == 'en';
-    final theme = Theme.of(context);
 
     if (isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
 
-    if (questions.isEmpty) {
-      return Center(
-        child: Text(
-          isEnglish ? "No questions found." : "Tiada soalan dijumpai.",
-          style: const TextStyle(fontSize: 18),
+    if (questions.isEmpty || shuffledOptions.isEmpty) {
+      return GradientBackground(
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          appBar: _buildAppBar(context, isEnglish, widget.quizTitle),
+          body: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  isEnglish
+                      ? "No questions found for this quiz yet."
+                      : "Tiada soalan dijumpai untuk kuiz ini lagi.",
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+          ),
         ),
       );
     }
 
-    final options = isLoading || questions.isEmpty
-        ? []
-        : shuffledOptions[currentQuestion];
+    final options = shuffledOptions[currentQuestion];
 
     return GradientBackground(
       child: Scaffold(
@@ -300,7 +329,7 @@ class _QuizStartPageState extends State<QuizStartPage> {
                                         .isNotEmpty)
                                   ClipRRect(
                                     borderRadius: BorderRadius.circular(15),
-                                    child: Image.network(
+                                    child: Image.asset(
                                       questions[currentQuestion]['question_image'],
                                       height: 180,
                                       width: double.infinity,
@@ -396,7 +425,7 @@ class _QuizStartPageState extends State<QuizStartPage> {
                                         option['image']!.isNotEmpty)
                                       ClipRRect(
                                         borderRadius: BorderRadius.circular(10),
-                                        child: Image.network(
+                                        child: Image.asset(
                                           option['image'],
                                           height: 120,
                                           width: double.infinity,

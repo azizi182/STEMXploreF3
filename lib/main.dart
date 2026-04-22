@@ -5,23 +5,29 @@ import 'package:stemxplore/l10n/languages.dart';
 import 'package:stemxplore/pages/splashscreen.dart';
 import 'package:stemxplore/theme_provider.dart'; // your theme provider file
 import 'package:stemxplore/bookmarkmanager.dart'; // import BookmarkManager
+import 'package:stemxplore/database/insert_data.dart';
+import 'package:stemxplore/database/db_helper.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await DBHelper.getDB();
+  await InsertData.insertAll();
+
+  final db = await DBHelper.getDB();
+
+  print(await db.query('stem_quiz'));
+  print(await db.query('stem_quiz_question'));
 
   // Initialize localization
   final FlutterLocalization localization = FlutterLocalization.instance;
   await localization.ensureInitialized();
 
-  // Initialize BookmarkManager
-  final BookmarkManager bookmarkManager = await BookmarkManager.getInstance();
-
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
-        ChangeNotifierProvider.value(
-          value: bookmarkManager,
+        ChangeNotifierProvider(
+          create: (_) => BookmarkManager(),
         ), // ⚡ provide BookmarkManager
       ],
       child: const MainApp(),

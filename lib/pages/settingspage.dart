@@ -13,6 +13,7 @@ class Settingspage extends StatefulWidget {
 class _SettingspageState extends State<Settingspage> {
   bool _isSound = false;
 
+  final Color themeGreen = const Color.fromARGB(255, 52, 137, 55);
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
@@ -25,7 +26,7 @@ class _SettingspageState extends State<Settingspage> {
     return GradientBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        appBar: buildCustomAppBar(isEnglish, context),
+        appBar: buildCustomAppBar(isEnglish),
         body: SafeArea(
           child: SingleChildScrollView(
             child: Column(
@@ -109,70 +110,122 @@ class _SettingspageState extends State<Settingspage> {
     );
   }
 
-  AppBar buildCustomAppBar(bool isEnglish, BuildContext context) {
+  AppBar buildCustomAppBar(bool isEnglish) {
     final theme = Theme.of(context);
     return AppBar(
       title: Padding(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-        child: Text(
-          isEnglish ? "Settings" : 'Tetapan',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 22,
-            color: theme.brightness == Brightness.dark
-                ? Colors.black
-                : Colors.black,
-          ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            // Left Side: App title with F3 badge
+            Text(
+              isEnglish ? "Info" : 'Maklumat',
+
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 22,
+                color: Colors.black,
+              ),
+            ),
+
+            // Right Side: Flag toggle (for display only now)
+            GestureDetector(
+              onTap: () {
+                final FlutterLocalization localization =
+                    FlutterLocalization.instance;
+
+                final String currentLang =
+                    localization.currentLocale?.languageCode ?? 'en';
+
+                final String nextLocale = currentLang == 'en' ? 'ms' : 'en';
+
+                localization.translate(nextLocale);
+
+                setState(() {}); // rebuild UI
+              },
+              child: Column(
+                children: [
+                  ClipOval(
+                    child: Image.asset(
+                      // The flag changes based on isEnglish
+                      isEnglish
+                          ? 'assets/flag/language ms_flag.png'
+                          : 'assets/flag/language us_flag.png',
+                      width: 36,
+                      height: 36,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  Text(
+                    isEnglish ? 'MS' : 'EN',
+                    style: const TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
       backgroundColor: theme.brightness == Brightness.dark
           ? Color.fromRGBO(179, 204, 161, 1)
           : Color.fromARGB(255, 52, 137, 55),
-      actions: [
-        GestureDetector(
-          onTap: () {
-            final localization = FlutterLocalization.instance;
+    );
+  }
 
-            final currentLang =
-                localization.currentLocale?.languageCode ?? 'en';
-            final newLang = currentLang == 'en' ? 'ms' : 'en';
-
-            localization.translate(newLang);
-
-            setState(() {});
-          },
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // 🔵 Circle (ONLY flag inside)
-              Container(
-                padding: const EdgeInsets.all(12),
-
-                child: ClipOval(
-                  child: Image.asset(
-                    isEnglish
-                        ? 'assets/flag/language ms_flag.png'
-                        : 'assets/flag/language us_flag.png',
-                    width: 40,
-                    height: 40,
-                    fit: BoxFit.fill,
+  Widget buildInfoCard({
+    required IconData icon,
+    required String title,
+    required String content,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: themeGreen, size: 28),
+          const SizedBox(width: 15),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-              ),
-
-              // 🔤 Text BELOW the circle
-              Text(
-                isEnglish ? 'MS' : 'EN',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
+                const SizedBox(height: 8),
+                Text(
+                  content,
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontSize: 14,
+                    height: 1.5,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

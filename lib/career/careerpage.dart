@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localization/flutter_localization.dart';
-import 'package:stemxplore/career/careerquiz.dart';
-//import 'package:stemxplore/gradient_background.dart';
+
 import 'package:stemxplore/theme_provider.dart';
 
 class Careerpage extends StatefulWidget {
@@ -18,7 +17,7 @@ class _CareerpageState extends State<Careerpage> {
     final FlutterLocalization localization = FlutterLocalization.instance;
     final String currentLang = localization.currentLocale?.languageCode ?? 'en';
     final bool isEnglish = currentLang == 'en';
-    final theme = Theme.of(context);
+    Theme.of(context);
 
     return GradientBackground(
       child: Scaffold(

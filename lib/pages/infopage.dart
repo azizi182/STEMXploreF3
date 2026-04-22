@@ -18,9 +18,6 @@ class _InfopageState extends State<Infopage> {
     final FlutterLocalization localization = FlutterLocalization.instance;
     final bool isEnglish = localization.currentLocale?.languageCode == 'en';
     final theme = Theme.of(context);
-    final String description = isEnglish
-        ? 'STEMXplore F3 is a mobile learning application designed for Form 3 secondary school students to explore Science, Technology, Engineering, and Mathematics (STEM) in a more advanced and career-oriented way. The app provides interactive content, videos, quizzes, and hands-on learning activities to help students understand STEM concepts, apply them in real life, and start thinking about future career paths.'
-        : ' STEMXplore F3 ialah aplikasi pembelajaran mudah alih yang direka untuk pelajar sekolah menengah Tingkatan 3 bagi meneroka Sains, Teknologi, Kejuruteraan dan Matematik (STEM) dengan cara yang lebih maju dan berorientasikan kerjaya. Aplikasi ini menyediakan kandungan interaktif, video, kuiz dan aktiviti pembelajaran secara langsung untuk membantu pelajar memahami konsep STEM, mengaplikasikannya dalam kehidupan sebenar dan mula memikirkan laluan kerjaya masa depan.';
 
     return GradientBackground(
       child: Scaffold(

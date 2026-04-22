@@ -1,10 +1,6 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_localization/flutter_localization.dart';
-import 'package:http/http.dart' as http;
-import 'package:stemxplore/ipaddress.dart';
-import 'package:stemxplore/quizgame/quizstartpage.dart';
+import 'package:stemxplore/database/dao/quiz_dao.dart';
 import 'package:stemxplore/theme_provider.dart';
 
 class Quizgamepage extends StatefulWidget {
@@ -23,25 +19,17 @@ class _QuizgamepageState extends State<Quizgamepage> {
 
   Future<void> fetchQuiz() async {
     try {
-      final response = await http.get(
-        Uri.parse('${ipaddress.baseUrl}api/get_quiz.php'),
-      );
+      final data = await QuizDao.getAllQuizzes();
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-
-        setState(() {
-          quizzes = data;
-          isLoading = false;
-        });
-      } else {
-        throw Exception('Failed to load quiz');
-      }
+      setState(() {
+        quizzes = data;
+        isLoading = false;
+      });
     } catch (e) {
       setState(() {
         isLoading = false;
       });
-      print(e);
+      print("Quiz load error: $e");
     }
   }
 
@@ -296,9 +284,7 @@ class _QuizgamepageState extends State<Quizgamepage> {
                               imgPath: getSubjectCover(
                                 subjectEn: quiz['quiz_subject_en'],
                                 subjectMs: quiz['quiz_subject_ms'],
-                                quizId:
-                                    int.tryParse(quiz['quiz_id'].toString()) ??
-                                    0,
+                                quizId: quiz['quiz_id'] as int,
                                 isEnglish: isEnglish,
                               ),
                               isEnglish: isEnglish,

@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localization/flutter_localization.dart';
+import 'package:stemxplore/database/dao/learning_dao.dart';
 import 'package:stemxplore/theme_provider.dart';
-import 'package:stemxplore/learningmaterial/materialdetailpage.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:stemxplore/ipaddress.dart';
-import 'package:video_thumbnail/video_thumbnail.dart';
 
 class Learningmaterialpage extends StatefulWidget {
   final Function(dynamic) onSelect;
@@ -21,6 +17,12 @@ class _LearningmaterialpageState extends State<Learningmaterialpage> {
 
   List<dynamic> materials = [];
   bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchLearningMaterials();
+  }
 
   String getSubjectCover({
     required String subjectEn,
@@ -56,35 +58,16 @@ class _LearningmaterialpageState extends State<Learningmaterialpage> {
     return "assets/images/default_cover.jpg";
   }
 
-  @override
-  void initState() {
-    super.initState();
-    fetchLearningMaterials();
-  }
-
   Future<void> fetchLearningMaterials() async {
     try {
-      final response = await http.get(
-        Uri.parse('${ipaddress.baseUrl}api/get_learning_material.php'),
-      );
-      print("error learning" + response.body);
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+      final data = await LearningDao.getAllLearning();
 
-        // Extract subjects dynamically
-        final subjectSet = <String>{};
-
-        for (var item in data) {
-          subjectSet.add(item['learning_subject_en']);
-        }
-
-        setState(() {
-          materials = data;
-          isLoading = false;
-        });
-      }
+      setState(() {
+        materials = data;
+        isLoading = false;
+      });
     } catch (e) {
-      print(e);
+      print("DB error: $e");
       setState(() => isLoading = false);
     }
   }

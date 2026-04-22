@@ -15,17 +15,37 @@ dependencies:
   video_player: ^2.10.1
   curved_navigation_bar: ^1.0.6
   shared_preferences: ^2.5.4
-  flutter_localization: ^0.3.3
+  flutter_localization: ^0.4.0
   provider: ^6.1.5+1
   video_thumbnail: ^0.5.6
-  google_fonts: ^6.3.3
+  google_fonts: ^8.0.2
   confetti: ^0.8.0
+  sqflite: ^2.4.2
+  path: ^1.9.1
+  
 
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/logoicon4.png"
+  min_sdk_android: 21 # android min sdk min:16, default 21
+  web:
+    generate: true
+    image_path: "assets/images/logoicon4.png"
+    background_color: "#hexcode"
+    theme_color: "#hexcode"
+  windows:
+    generate: true
+    image_path: "assets/images/logoicon4.png"
+    icon_size: 48 # min:48, max:256, default: 48
+  
 
 flutter:
   uses-material-design: true
@@ -37,3 +57,19 @@ flutter:
     - assets/images/cover_chap/mt/
     - assets/images/cover_chap/ask/
     - assets/images/cover_chap/rbt/
+    - assets/career/engineering/
+    - assets/career/math/
+    - assets/career/science/
+    - assets/career/technology/
+    - assets/data/
+    - assets/faq/
+    - assets/highlight/
+    - assets/info/
+    - assets/learning/ask/
+    - assets/learning/mt/
+    - assets/learning/rbt/
+    - assets/learning/science/
+    - assets/learning/science/chap1/
+    - assets/quiz/math/
+    - assets/quiz/science/chap1/
+

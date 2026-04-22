@@ -1,8 +1,8 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_localization/flutter_localization.dart';
-import 'package:http/http.dart' as http;
-import 'package:stemxplore/ipaddress.dart';
+
+import 'package:stemxplore/database/dao/career_dao.dart';
+
 import 'package:stemxplore/theme_provider.dart';
 
 class Careerresult extends StatefulWidget {
@@ -24,19 +24,16 @@ class _CareerresultState extends State<Careerresult> {
   bool isLoading = true;
 
   Future<void> fetchJobs() async {
-    final response = await http.get(
-      Uri.parse(
-        "${ipaddress.baseUrl}api/get_career_job.php?field_id=${widget.fieldId}",
-      ),
-    );
-
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
+    try {
+      final data = await CareerJobDao.getJobsByField(widget.fieldId);
 
       setState(() {
         jobs = data;
         isLoading = false;
       });
+    } catch (e) {
+      print("Career job DB error: $e");
+      setState(() => isLoading = false);
     }
   }
 
@@ -167,7 +164,7 @@ class _CareerresultState extends State<Careerresult> {
                                   topLeft: Radius.circular(15),
                                   topRight: Radius.circular(15),
                                 ),
-                                child: Image.network(
+                                child: Image.asset(
                                   job['image'],
                                   height: 550, // make it big and portrait style
                                   fit: BoxFit.fill,
@@ -290,13 +287,10 @@ class FullScreenImagePage extends StatelessWidget {
           Center(
             child: InteractiveViewer(
               maxScale: 5.0, // allow pinch zoom
-              child: Image.network(
+              child: Image.asset(
                 imageUrl,
                 fit: BoxFit.contain,
-                loadingBuilder: (context, child, progress) {
-                  if (progress == null) return child;
-                  return const Center(child: CircularProgressIndicator());
-                },
+
                 errorBuilder: (context, error, stack) {
                   return const Center(
                     child: Icon(

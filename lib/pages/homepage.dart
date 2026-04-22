@@ -1,10 +1,7 @@
-import 'dart:convert';
 import 'package:flutter_localization/flutter_localization.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:provider/provider.dart';
-import 'package:stemxplore/ipaddress.dart';
+import 'package:stemxplore/database/dao/highlight_dao.dart';
 import 'package:stemxplore/theme_provider.dart';
 
 class Homepage extends StatefulWidget {
@@ -28,25 +25,19 @@ class _HomepageState extends State<Homepage> {
   @override
   void initState() {
     super.initState();
-    fetchStemHighlights();
+    loadHighlights();
   }
 
-  Future<void> fetchStemHighlights() async {
+  Future<void> loadHighlights() async {
     try {
-      final response = await http.get(
-        Uri.parse('${ipaddress.baseUrl}api/get_stem_highlight.php'),
-      );
-      print("STATUS: ${response.statusCode}");
-      // print('${ipaddress.baseUrl}api/get_stem_highlight.php');
-      // print("BODY: ${response.body}");
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        setState(() {
-          highlights = data;
-        });
-      }
+      final data = await HighlightDao.getHighlights();
+
+      setState(() {
+        highlights = data;
+        print("Highlights length: ${data.length}");
+      });
     } catch (e) {
-      print("Error fetching STEM highlights: $e");
+      print("Error loading highlights: $e");
     }
   }
 
@@ -204,11 +195,10 @@ class _HomepageState extends State<Homepage> {
                                     borderRadius: const BorderRadius.horizontal(
                                       left: Radius.circular(16),
                                     ),
-                                    child: Image.network(
-                                      (mediaList != null &&
-                                              mediaList.isNotEmpty)
+                                    child: Image.asset(
+                                      mediaList.isNotEmpty
                                           ? mediaList[0]
-                                          : 'https://via.placeholder.com/150',
+                                          : 'assets/images/logoicon4.png',
                                       fit: BoxFit.cover,
                                     ),
                                   ),

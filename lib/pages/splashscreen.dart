@@ -49,57 +49,62 @@ class _SplashpageState extends State<Splashpage>
     return GradientBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const SizedBox(height: 20),
 
-              /// TAP + ANIMATION
-              GestureDetector(
-                onTap: _goNextPage,
-                child: ScaleTransition(
-                  scale: _scaleAnimation,
-                  child: Image.asset('assets/images/logoicon4.png', width: 400),
-                ),
+        body: Stack(
+          children: [
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 20),
+
+                  /// TAP + ANIMATION
+                  GestureDetector(
+                    onTap: _goNextPage,
+                    child: ScaleTransition(
+                      scale: _scaleAnimation,
+                      child: Image.asset(
+                        'assets/images/logoicon4.png',
+                        width: MediaQuery.of(context).size.width * 0.8,
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  const Text(
+                    'Discover your future in Science, Technology,\nEngineering & Mathematics',
+                    style: TextStyle(fontSize: 18, color: Colors.black),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ),
+            ),
 
-              const SizedBox(height: 20),
+            /// Hint text
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 35,
+              child: Icon(Icons.touch_app, size: 40, color: Colors.black45),
+            ),
 
-              const Text(
-                'Discover your future in Science, Technology,\nEngineering & Mathematics',
-                style: TextStyle(fontSize: 18, color: Colors.black),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 15,
+              child: Text(
+                'Touch to start',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.black54,
+                  fontStyle: FontStyle.italic,
+                  fontWeight: FontWeight.bold,
+                ),
                 textAlign: TextAlign.center,
               ),
-
-              SizedBox(height: 200),
-
-              const Positioned(
-                left: 0,
-                right: 0,
-                bottom: 35,
-                child: Icon(Icons.touch_app, size: 40, color: Colors.black45),
-              ),
-
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 15,
-                child: Text(
-                  'Touch to start',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.black54,
-                    fontStyle: FontStyle.italic,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-
-              /// Hint text
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

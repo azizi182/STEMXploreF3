@@ -1,8 +1,6 @@
-import 'dart:convert';
 import 'package:flutter_localization/flutter_localization.dart';
-import 'package:http/http.dart' as http;
-import 'package:stemxplore/ipaddress.dart';
 import 'package:flutter/material.dart';
+import 'package:stemxplore/database/dao/faq_dao.dart';
 import 'package:stemxplore/theme_provider.dart';
 
 class Faqpage extends StatefulWidget {
@@ -26,23 +24,16 @@ class _FaqpageState extends State<Faqpage> {
   // Function to get data faq from the API
   Future<void> fetchFaq() async {
     try {
-      final response = await http.get(
-        Uri.parse('${ipaddress.baseUrl}api/get_faq.php'),
-      );
+      final data = await FaqDao.getFaqs();
 
-      if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
-        setState(() {
-          faqs = data.map((e) => e as Map<String, dynamic>).toList();
-          expanded = List.filled(faqs.length, false);
-          isLoading = false;
-        });
-      }
-    } catch (e) {
-      print(e);
       setState(() {
+        faqs = data;
+        expanded = List.filled(faqs.length, false);
         isLoading = false;
       });
+    } catch (e) {
+      print("FAQ DB error: $e");
+      setState(() => isLoading = false);
     }
   }
 
@@ -51,7 +42,7 @@ class _FaqpageState extends State<Faqpage> {
     final FlutterLocalization localization = FlutterLocalization.instance;
     final String currentLang = localization.currentLocale?.languageCode ?? 'en';
     final bool isEnglish = currentLang == 'en';
-    final theme = Theme.of(context);
+
     return GradientBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
@@ -150,7 +141,7 @@ class _FaqpageState extends State<Faqpage> {
                             color: Colors.green[100],
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: Image.network(
+                          child: Image.asset(
                             faq['faq_image']!,
                             fit: BoxFit.contain,
                           ),

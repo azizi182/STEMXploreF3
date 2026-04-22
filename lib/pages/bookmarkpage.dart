@@ -1,13 +1,7 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_localization/flutter_localization.dart';
-import 'package:http/http.dart' as http;
-import 'package:provider/provider.dart';
-import 'package:stemxplore/bookmarkmanager.dart';
-import 'package:stemxplore/ipaddress.dart';
+import 'package:stemxplore/database/dao/bookmark_dao.dart';
 import 'package:stemxplore/learningmaterial/materialdetailpage.dart';
-import 'package:stemxplore/theme_provider.dart';
 import 'package:stemxplore/theme_provider.dart';
 
 class Bookmarkpage extends StatefulWidget {
@@ -32,47 +26,34 @@ class _BookmarkpageState extends State<Bookmarkpage> {
 
   Future<void> _loadBookmarks() async {
     try {
-      final manager = await BookmarkManager.getInstance();
-      final pageIds = manager.getBookmarks();
+      final data = await LearningPageDao.getBookmarkedPages();
 
-      final response = await http.get(
-        Uri.parse('${ipaddress.baseUrl}api/get_learning_material.php'),
-      );
+      List<Map<String, dynamic>> pages = [];
 
-      // 1. Check if the server returned a 200 OK
-      if (response.statusCode == 200) {
-        // 2. Check if the body is actually empty
-        if (response.body.isEmpty) {
-          print("Error: Server returned an empty body.");
-          return;
-        }
-
-        final data = (json.decode(response.body) as List<dynamic>);
-
-        List<Map<String, dynamic>> pages = [];
-        for (var learning in data) {
-          for (var page in (learning['pages'] ?? [])) {
-            if (pageIds.contains(page['page_id'])) {
-              pages.add({
-                'learning_subject_en': learning['learning_subject_en'],
-                'learning_subject_ms': learning['learning_subject_ms'],
-                'learning_title_en': learning['learning_title_en'],
-                'learning_title_ms': learning['learning_title_ms'],
-                'page': page,
-              });
-            }
-          }
-        }
-
-        setState(() {
-          bookmarkedPages = pages;
+      for (var row in data) {
+        pages.add({
+          'learning_subject_en': row['learning_subject_en'],
+          'learning_subject_ms': row['learning_subject_ms'],
+          'learning_title_en': row['learning_title_en'],
+          'learning_title_ms': row['learning_title_ms'],
+          'page': {
+            'page_id': row['page_id'],
+            'page_title_en': row['page_title_en'],
+            'page_title_ms': row['page_title_ms'],
+            'page_desc_en': row['page_desc_en'],
+            'page_desc_ms': row['page_desc_ms'],
+            'media': [
+              {'type': row['media_type'], 'url': row['media_url']},
+            ],
+          },
         });
-      } else {
-        print("Server Error: ${response.statusCode}");
       }
+
+      setState(() {
+        bookmarkedPages = pages;
+      });
     } catch (e) {
-      print("Caught error: $e");
-      // This will now catch the FormatException instead of crashing the app
+      print("Error loading bookmarks: $e");
     }
   }
 
@@ -80,14 +61,13 @@ class _BookmarkpageState extends State<Bookmarkpage> {
   Widget build(BuildContext context) {
     final FlutterLocalization localization = FlutterLocalization.instance;
     final bool isEnglish = localization.currentLocale?.languageCode == 'en';
-    final theme = Theme.of(context);
 
     final filteredBookmarks =
         (selectedCategory == "All" || selectedCategory == "Semua")
         ? bookmarkedPages
-        : bookmarkedPages.where((item) {
-            final subjectEn = item['learning_subject_en'];
-            final subjectMs = item['learning_subject_ms'];
+        : bookmarkedPages.where((m) {
+            final subjectEn = m['learning_subject_en'];
+            final subjectMs = m['learning_subject_ms'];
 
             switch (selectedCategory) {
               case "Science":
@@ -193,9 +173,7 @@ class _BookmarkpageState extends State<Bookmarkpage> {
                             final title = isEnglish
                                 ? item['learning_title_en']
                                 : item['learning_title_ms'];
-                            final pageTitle = isEnglish
-                                ? page['page_title_en']
-                                : page['page_title_ms'];
+
                             final subject = isEnglish
                                 ? item['learning_subject_en']
                                 : item['learning_subject_ms'];
@@ -230,100 +208,207 @@ class _BookmarkpageState extends State<Bookmarkpage> {
                                   ),
                                 ).then((_) => _loadBookmarks());
                               },
-                              child: Stack(
-                                children: [
-                                  Container(
-                                    margin: const EdgeInsets.only(bottom: 20),
-                                    padding: const EdgeInsets.all(12),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(20),
-                                      border:
-                                          selectedPages.contains(
-                                            page['page_id']?.toString() ?? '',
-                                          )
-                                          ? Border.all(
-                                              color: Colors.green,
-                                              width: 2,
-                                            )
-                                          : null,
+
+                              child: GestureDetector(
+                                onTap: () {
+                                  final id = page['page_id'].toString();
+
+                                  if (selectionMode) {
+                                    setState(() {
+                                      if (selectedPages.contains(id)) {
+                                        selectedPages.remove(id);
+                                      } else {
+                                        selectedPages.add(id);
+                                      }
+                                    });
+                                    return;
+                                  }
+
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => Materialdetailpage(
+                                        learningMaterial: {
+                                          'learning_title_en':
+                                              item['learning_title_en'],
+                                          'learning_title_ms':
+                                              item['learning_title_ms'],
+                                          'pages': [item['page']],
+                                        },
+                                      ),
                                     ),
-                                    child: Row(
-                                      children: [
-                                        /// IMAGE
-                                        ClipRRect(
-                                          borderRadius: BorderRadius.circular(
-                                            15,
-                                          ),
-                                          child:
-                                              page['media'] != null &&
-                                                  page['media'].isNotEmpty &&
-                                                  page['media'][0]['type'] ==
-                                                      'image'
-                                              ? Image.network(
-                                                  page['media'][0]['url'],
-                                                  width: 90,
-                                                  height: 90,
-                                                  fit: BoxFit.cover,
-                                                )
-                                              : Container(
-                                                  width: 90,
-                                                  height: 90,
-                                                  color: Colors.grey[300],
-                                                  child: const Icon(
-                                                    Icons.image,
+                                  ).then((_) => _loadBookmarks());
+                                },
+
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 200),
+                                  margin: const EdgeInsets.only(bottom: 16),
+                                  decoration: BoxDecoration(
+                                    color:
+                                        selectedPages.contains(
+                                          page['page_id'].toString(),
+                                        )
+                                        ? Colors.green.withOpacity(0.08)
+                                        : Colors.white,
+                                    borderRadius: BorderRadius.circular(20),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.08),
+                                        blurRadius: 10,
+                                        offset: const Offset(0, 4),
+                                      ),
+                                    ],
+                                    border:
+                                        selectedPages.contains(
+                                          page['page_id'].toString(),
+                                        )
+                                        ? Border.all(
+                                            color: Colors.green,
+                                            width: 1.5,
+                                          )
+                                        : null,
+                                  ),
+
+                                  child: Row(
+                                    children: [
+                                      /// 🔥 IMAGE WITH MODERN STYLE
+                                      ClipRRect(
+                                        borderRadius:
+                                            const BorderRadius.horizontal(
+                                              left: Radius.circular(20),
+                                            ),
+                                        child: Stack(
+                                          children: [
+                                            page['media'] != null &&
+                                                    page['media'].isNotEmpty &&
+                                                    page['media'][0]['type'] ==
+                                                        'image'
+                                                ? Image.asset(
+                                                    page['media'][0]['url'],
+                                                    width: 110,
+                                                    height: 110,
+                                                    fit: BoxFit.cover,
+                                                  )
+                                                : Container(
+                                                    width: 110,
+                                                    height: 110,
+                                                    color: Colors.grey[300],
+                                                    child: const Icon(
+                                                      Icons.image,
+                                                    ),
                                                   ),
+
+                                            /// gradient overlay
+                                            Container(
+                                              width: 110,
+                                              height: 110,
+                                              decoration: BoxDecoration(
+                                                gradient: LinearGradient(
+                                                  colors: [
+                                                    Colors.black.withOpacity(
+                                                      0.1,
+                                                    ),
+                                                    Colors.transparent,
+                                                  ],
+                                                  begin: Alignment.bottomCenter,
+                                                  end: Alignment.topCenter,
                                                 ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
+                                      ),
 
-                                        const SizedBox(width: 15),
-
-                                        /// TEXT
-                                        Expanded(
+                                      /// 🔥 CONTENT
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(12),
                                           child: Column(
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
                                             children: [
-                                              Text(subject),
-                                              Text(title),
-                                              Text(pageTitle),
+                                              /// SUBJECT BADGE
+                                              Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 10,
+                                                      vertical: 8,
+                                                    ),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.green
+                                                      .withOpacity(0.1),
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                ),
+
+                                                child: Text(
+                                                  subject ?? '',
+                                                  style: const TextStyle(
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: Colors.green,
+                                                  ),
+                                                ),
+                                              ),
+
+                                              SizedBox(height: 10),
+
+                                              /// TITLE
+                                              Text(
+                                                title ?? '',
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: const TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+
+                                              const SizedBox(height: 4),
+
+                                              /// PAGE TITLE
                                             ],
                                           ),
                                         ),
+                                      ),
 
-                                        const Icon(
-                                          Icons.arrow_forward_ios,
-                                          size: 18,
+                                      /// 🔥 RIGHT ICON / CHECK
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                          right: 12,
                                         ),
-                                      ],
-                                    ),
-                                  ),
-
-                                  /// CHECKBOX OVERLAY
-                                  if (selectionMode)
-                                    Positioned(
-                                      top: 10,
-                                      right: 10,
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: Colors.white,
-                                          border: Border.all(
-                                            color: Colors.green,
+                                        child: AnimatedSwitcher(
+                                          duration: const Duration(
+                                            milliseconds: 200,
                                           ),
-                                        ),
-                                        child: Icon(
-                                          selectedPages.contains(
-                                                page['page_id']?.toString() ??
-                                                    '',
-                                              )
-                                              ? Icons.check_box
-                                              : Icons.check_box_outline_blank,
-                                          color: Colors.green,
+                                          child: selectionMode
+                                              ? Icon(
+                                                  selectedPages.contains(
+                                                        page['page_id']
+                                                            .toString(),
+                                                      )
+                                                      ? Icons.check_circle
+                                                      : Icons
+                                                            .radio_button_unchecked,
+                                                  key: ValueKey(
+                                                    selectedPages.contains(
+                                                      page['page_id']
+                                                          .toString(),
+                                                    ),
+                                                  ),
+                                                  color: Colors.green,
+                                                  size: 26,
+                                                )
+                                              : const Icon(
+                                                  Icons.arrow_forward_ios,
+                                                  size: 18,
+                                                  color: Colors.grey,
+                                                ),
                                         ),
                                       ),
-                                    ),
-                                ],
+                                    ],
+                                  ),
+                                ),
                               ),
                             );
                           },
@@ -337,11 +422,11 @@ class _BookmarkpageState extends State<Bookmarkpage> {
                       onPressed: selectedPages.isEmpty
                           ? null
                           : () async {
-                              final manager =
-                                  await BookmarkManager.getInstance();
-
                               for (String id in selectedPages) {
-                                manager.removeBookmark(id);
+                                await LearningPageDao.updateBookmark(
+                                  int.parse(id),
+                                  'no',
+                                );
                               }
 
                               selectedPages.clear();

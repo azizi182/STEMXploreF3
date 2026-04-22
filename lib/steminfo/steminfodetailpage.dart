@@ -1,4 +1,3 @@
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localization/flutter_localization.dart';
 import 'package:stemxplore/theme_provider.dart';
@@ -95,7 +94,7 @@ class _StemInfoDetailPageState extends State<StemInfoDetailPage> {
               },
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(15),
-                child: Image.network(
+                child: Image.asset(
                   img,
                   fit: BoxFit.cover,
                   width: double.infinity,
@@ -181,35 +180,6 @@ class _StemInfoDetailPageState extends State<StemInfoDetailPage> {
 }
 
 //image
-Widget _imageItem(BuildContext context, String url, double height) {
-  return GestureDetector(
-    onTap: () {
-      // Open full screen image
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => FullScreenImagePage(imageUrl: url)),
-      );
-    },
-    child: SizedBox(
-      width: double.infinity,
-      height: height,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Image.network(
-          url,
-          fit: BoxFit.cover,
-          loadingBuilder: (context, child, loadingProgress) {
-            if (loadingProgress == null) return child;
-            return const Center(child: CircularProgressIndicator());
-          },
-          errorBuilder: (context, error, stackTrace) {
-            return const Center(child: Icon(Icons.broken_image, size: 40));
-          },
-        ),
-      ),
-    ),
-  );
-}
 
 // Video Widget (same as above)
 class VideoWidget extends StatefulWidget {
@@ -234,7 +204,7 @@ class _VideoWidgetState extends State<VideoWidget> {
   @override
   void initState() {
     super.initState();
-    controller = VideoPlayerController.networkUrl(Uri.parse(widget.url))
+    controller = VideoPlayerController.asset(widget.url)
       ..initialize().then((_) {
         if (!isDisposed && mounted) setState(() {});
       });
@@ -318,13 +288,10 @@ class FullScreenImagePage extends StatelessWidget {
           Center(
             child: InteractiveViewer(
               maxScale: 5.0, // allow pinch zoom
-              child: Image.network(
+              child: Image.asset(
                 imageUrl,
                 fit: BoxFit.contain,
-                loadingBuilder: (context, child, progress) {
-                  if (progress == null) return child;
-                  return const Center(child: CircularProgressIndicator());
-                },
+
                 errorBuilder: (context, error, stack) {
                   return const Center(
                     child: Icon(
